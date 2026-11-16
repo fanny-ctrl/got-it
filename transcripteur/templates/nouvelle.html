@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block titre %}Nouvel enregistrement · Transcripteur{% endblock %}
+{% block contenu %}
+{# Préparation d'un enregistrement : rattachement, formule d'information, accord du client, ce qu'on enregistre ;
+   ou import d'un fichier audio. Un seul formulaire, deux boutons : « Enregistrer » (accord obligatoire) et
+   « Transcrire ce fichier ». #}
+{% set p = peripheriques %}
+<div class="deux-zones">
+  <form class="formulaire" method="post" action="/enregistrer" enctype="multipart/form-data">
+    <h1>Enregistrer et transcrire</h1>
+
+    {% if en_cours %}
+    <p class="message">Un enregistrement est déjà en cours&nbsp;: <a href="/t/{{ en_cours }}">l'ouvrir</a>. Un seul enregistrement à la fois.</p>
+    {% endif %}
+
+    <label>Titre
+      <input name="titre" value="{{ titre }}" required>
+    </label>
+    <div class="deux-colonnes">
+      <label>Client
+        <input name="client" autocomplete="off">
+      </label>
+      <label>Dossier
+        <input name="dossier" autocomplete="off">
+      </label>
+    </div>
+    <label>Participants
+      <input name="participants" autocomplete="off" placeholder="Les noms des personnes présentes aident la transcription à les orthographier">
+    </label>
+
+    <h2>Information du client</h2>
+    <div class="encadre">
+      <p class="discret">Formule à lire au client avant d'enregistrer&nbsp;:</p>
+      <p>{{ information }}</p>
+      <p class="discret">L'accord de chaque personne présente est nécessaire, y compris en visioconférence. La case ne reste pas cochée d'un rendez-vous à l'autre&nbsp;; l'heure de l'accord est inscrite au journal.</p>
+    </div>
+    <label class="choix accord"><input type="checkbox" name="accord" value="1" id="accord"> J'ai informé le client de l'enregistrement et recueilli son accord</label>
+
+    <h2>Que faut-il enregistrer&nbsp;?</h2>
+    {% if p.erreur %}
+    <p class="message">Les périphériques audio ne sont pas accessibles&nbsp;: {{ p.erreur }}</p>
+    {% elif not p.micros %}
+    <p class="message">Aucun micro trouvé. Branchez un micro, puis rechargez la page.</p>
+    {% else %}
+    <div class="modes">
+      <label class="choix mode"><input type="radio" name="mode" value="micro" checked>
+        <span><strong>Le micro seul</strong><br><span class="discret">Rendez-vous au cabinet&nbsp;: tout le monde est dans la pièce.</span></span></label>
+      <label class="choix mode"><input type="radio" name="mode" value="visio" {% if not p.sorties %}disabled{% endif %}>
+        <span><strong>Le micro et le son de l'ordinateur</strong><br><span class="discret">Visioconférence ou appel passé depuis le PC (Teams, Zoom, Meet…)&nbsp;: votre voix par le micro, celle de vos interlocuteurs par le son de l'ordinateur.</span></span></label>
+    </div>
+    <label>Micro
+      <select name="micro">
+        {% for identifiant, nom in p.micros %}<option value="{{ identifiant }}" {% if identifiant == p.micro_defaut %}selected{% endif %}>{{ nom }}</option>{% endfor %}
+      </select>
+    </label>
+    <label id="choix-sortie" hidden>Son de l'ordinateur, capté sur
+      <select name="sortie">
+        {% for identifiant, nom in p.sorties %}<option value="{{ identifiant }}" {% if identifiant == p.sortie_defaut %}selected{% endif %}>{{ nom }}</option>{% endfor %}
+      </select>
+      <span class="discret">Choisissez la sortie par laquelle vous entendez vos interlocuteurs (haut-parleurs, écran ou casque). Tout ce que l'ordinateur joue sur cette sortie est enregistré, notifications comprises.</span>
+    </label>
+    {% endif %}
+    <div class="actions">
+      <button class="bouton principal" type="submit" id="bouton-enregistrer" disabled
+              data-possible="{{ '1' if p.micros and not en_cours else '' }}">● Enregistrer</button>
+      <span class="discret" id="aide-enregistrer">{% if en_cours %}Un enregistrement est déjà en cours.{% else %}Cochez d'abord la case de l'accord du client.{% endif %}</span>
+    </div>
+
+    <h2>Ou transcrire un fichier audio</h2>
+    <p class="discret">Dictaphone, téléphone, enregistrement d'une visio&nbsp;: le fichier d'origine n'est jamais modifié&nbsp;; le Transcripteur en garde une copie le temps de la transcription, puis l'efface.</p>
+    <label>Fichier
+      <input type="file" name="fichier" id="fichier" accept="audio/*,video/mp4,{{ extensions }}">
+    </label>
+    <div class="actions">
+      <button class="bouton" type="submit" id="bouton-importer" formaction="/importer" disabled>Transcrire ce fichier</button>
+      <a class="bouton" href="/">Annuler</a>
+    </div>
+  </form>
+
+  <aside>
+    {% include "_environnement.html" %}
+    <h3>Après l'enregistrement</h3>
+    <p>L'audio est transcrit puis effacé aussitôt. La synthèse suit la trame des <a href="/reglages">réglages</a>. Comptez de dix à trente minutes pour une heure d'entretien&nbsp;; vous pouvez fermer la page pendant le traitement, pas le Transcripteur.</p>
+    <p class="discret">La transcription et la synthèse se trompent parfois (noms propres, chiffres, nuances)&nbsp;: la synthèse est un document de travail à relire, jamais à transmettre tel quel.</p>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // « Enregistrer » ne s'active qu'avec l'accord du client coché ; « Transcrire ce fichier » qu'une fois un
+  // fichier choisi ; le choix de la sortie n'apparaît que pour « micro et son de l'ordinateur ».
+  (function () {
+    const accord = document.getElementById("accord");
+    const enregistrer = document.getElementById("bouton-enregistrer");
+    const aide = document.getElementById("aide-enregistrer");
+    const fichier = document.getElementById("fichier");
+    const importer = document.getElementById("bouton-importer");
+    const sortie = document.getElementById("choix-sortie");
+    function majEnregistrer() {
+      const possible = enregistrer.dataset.possible === "1";
+      enregistrer.disabled = !(possible && accord.checked);
+      if (possible) aide.textContent = accord.checked ? "L'enregistrement démarre dès le clic." : "Cochez d'abord la case de l'accord du client.";
+    }
+    function majMode() {
+      const visio = document.querySelector("input[name=mode]:checked");
+      if (sortie) sortie.hidden = !(visio && visio.value === "visio");
+    }
+    accord.addEventListener("change", majEnregistrer);
+    document.querySelectorAll("input[name=mode]").forEach(bouton => bouton.addEventListener("change", majMode));
+    fichier.addEventListener("change", function () { importer.disabled = !fichier.files.length; });
+    // Le navigateur garde parfois la case cochée au retour arrière : on repart toujours d'une case vide.
+    accord.checked = false;
+    majEnregistrer();
+    majMode();
+  })();
+</script>
+{% endblock %}

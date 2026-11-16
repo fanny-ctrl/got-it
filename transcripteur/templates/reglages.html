@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titre %}Réglages · Transcripteur{% endblock %}
+{% block contenu %}
+<div class="deux-zones">
+  <form class="formulaire" method="post" action="/reglages">
+    <h1>Réglages</h1>
+    {% if message %}<p class="message">{{ message }}</p>{% endif %}
+
+    <label>Votre nom, tel qu'il doit apparaître
+      <input name="avocat" value="{{ valeurs.avocat }}" placeholder="Maître Prénom Nom" autocomplete="off">
+      <span class="discret">Il aide la transcription à orthographier votre nom et la synthèse à distinguer l'avocat du client.</span>
+    </label>
+
+    <label>Formule d'information lue au client
+      <textarea name="information" rows="5">{{ valeurs.information }}</textarea>
+    </label>
+
+    <label>Trame de la synthèse
+      <textarea name="trame" rows="20">{{ valeurs.trame }}</textarea>
+      <span class="discret">Ce sont les consignes données au modèle de langue. Adaptez la structure à votre pratique&nbsp;; les règles « ne rien inventer » et « rester factuel » méritent d'être gardées.</span>
+    </label>
+
+    <label>Modèle de langue d'Ollama
+      <select name="modele_ollama">
+        <option value="">Choix automatique (Mistral s'il est installé)</option>
+        {% for m in environnement.ollama or [] %}<option value="{{ m }}" {% if m == valeurs.modele_ollama %}selected{% endif %}>{{ m }}</option>{% endfor %}
+        {% if valeurs.modele_ollama and valeurs.modele_ollama not in (environnement.ollama or []) %}<option value="{{ valeurs.modele_ollama }}" selected>{{ valeurs.modele_ollama }} (introuvable pour l'instant)</option>{% endif %}
+      </select>
+    </label>
+
+    <div class="actions">
+      <button class="bouton principal" type="submit">Enregistrer</button>
+      <button class="bouton" type="submit" name="retablir" value="1" onclick="return confirm('Rétablir la formule d\'information et la trame d\'origine ?')">Rétablir la formule et la trame d'origine</button>
+    </div>
+  </form>
+
+  <aside>
+    {% include "_environnement.html" %}
+    <h3>Où sont les données</h3>
+    <p>La base et, le temps d'une transcription, les enregistrements sont dans <code>{{ dossier }}</code>, hors des dossiers synchronisés avec un service en ligne. Ne déplacez pas ce dossier dans OneDrive, Dropbox ou Google Drive.</p>
+    <p class="discret">Transcripteur {{ version }}</p>
+  </aside>
+</div>
+{% endblock %}

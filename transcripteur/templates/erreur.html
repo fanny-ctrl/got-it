@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titre %}Impossible · Transcripteur{% endblock %}
+{% block contenu %}
+<h1>Ce n'est pas possible</h1>
+<p class="message">{{ detail }}</p>
+<p><a class="bouton" href="javascript:history.back()">Revenir en arrière</a> <a class="bouton" href="/">Toutes les transcriptions</a></p>
+{% endblock %}

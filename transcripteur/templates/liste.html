@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block contenu %}
+<div class="tete">
+  <h1>Transcriptions</h1>
+  <a class="bouton principal" href="/nouvelle">● Nouvel enregistrement</a>
+</div>
+{% if message %}<p class="message">{{ message }}</p>{% endif %}
+{% if en_cours %}<p class="message">Un enregistrement est en cours&nbsp;: <a href="/t/{{ en_cours }}">l'ouvrir</a>.</p>{% endif %}
+
+{% if transcriptions %}
+<table class="liste">
+  <thead><tr><th>Date</th><th>Rendez-vous</th><th>Client</th><th>Durée</th><th>État</th></tr></thead>
+  <tbody>
+    {% for t in transcriptions %}
+    <tr>
+      <td class="date">{{ t.cree_le|date_fr(true) }}</td>
+      <td><a href="/t/{{ t.id }}">{{ t.titre }}</a>{% if t.dossier %} <span class="discret">· {{ t.dossier }}</span>{% endif %}</td>
+      <td>{{ t.client }}</td>
+      <td>{% if t.duree %}{{ t.duree|duree }}{% endif %}</td>
+      <td><span class="statut teinte-{{ statuts[t.statut].teinte }}">{{ statuts[t.statut].nom }}</span></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="accueil">
+  <p>Aucune transcription pour l'instant.</p>
+  <p>Le Transcripteur enregistre un rendez-vous (au cabinet avec le micro, ou en visioconférence avec le micro et le son de l'ordinateur), le transcrit et en rédige une synthèse. L'audio est effacé dès qu'il est transcrit, et rien n'est envoyé sur Internet.</p>
+  <p>Avant le premier enregistrement, indiquez votre nom dans les <a href="/reglages">réglages</a>&nbsp;: il aide la transcription et la synthèse.</p>
+</div>
+{% endif %}
+{% endblock %}

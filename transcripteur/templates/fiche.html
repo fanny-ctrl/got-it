@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block titre %}{{ t.titre }} · Transcripteur{% endblock %}
+{% block contenu %}
+{# Une transcription : suivi en direct pendant l'enregistrement et le traitement (relu toutes les une à deux
+   secondes sur /api/t/{id}), puis synthèse, texte intégral et téléchargement en Word. #}
+{% set s = statuts[t.statut] %}
+<div class="deux-zones">
+  <div>
+    <div class="tete">
+      <h1>{{ t.titre }}</h1>
+      <span class="statut teinte-{{ s.teinte }}">{{ s.nom }}</span>
+    </div>
+    <dl class="proprietes">
+      <dt>Date</dt><dd>{{ t.cree_le|date_fr(true) }}</dd>
+      {% if t.client %}<dt>Client</dt><dd>{{ t.client }}</dd>{% endif %}
+      {% if t.dossier %}<dt>Dossier</dt><dd>{{ t.dossier }}</dd>{% endif %}
+      {% if t.participants %}<dt>Participants</dt><dd>{{ t.participants }}</dd>{% endif %}
+      <dt>Source</dt><dd>{% if t.source == 'fichier' %}fichier «&nbsp;{{ t.fichier_origine }}&nbsp;»{% else %}{{ sources[t.source] }}, accord du client recueilli le {{ t.accord_le|date_fr(true) }}{% endif %}</dd>
+      {% if t.duree %}<dt>Durée</dt><dd>{{ t.duree|duree }}</dd>{% endif %}
+    </dl>
+
+    {% if message %}<p class="message">{{ message }}</p>{% endif %}
+
+    {% if t.statut == 'enregistrement' and actif %}
+    <section class="direct" data-suivi="enregistrement" data-id="{{ t.id }}" data-statut="{{ t.statut }}">
+      <p class="chrono" id="chrono">{{ ecoule|horodatage }}</p>
+      <div class="niveaux">
+        <span>Micro</span><div class="niveau"><span id="niveau-micro"></span></div>
+        {% if t.source == 'micro et ordinateur' %}
+        <span>Son de l'ordinateur</span><div class="niveau"><span id="niveau-ordinateur"></span></div>
+        {% endif %}
+      </div>
+      <p class="message" id="alerte" hidden></p>
+      <p class="discret">Les barres bougent quand il y a du son. Si celle du micro reste vide alors que vous parlez, vérifiez le micro choisi et, dans les paramètres de Windows (Confidentialité, Microphone), que les applications de bureau peuvent l'utiliser.{% if t.source == 'micro et ordinateur' %} Si celle de l'ordinateur reste vide quand votre interlocuteur parle, la sortie choisie n'est pas celle où vous l'entendez&nbsp;: abandonnez et recommencez avec l'autre sortie.{% endif %}</p>
+      <div class="actions">
+        <form method="post" action="/t/{{ t.id }}/arreter"><button class="bouton principal" type="submit">■ Arrêter et transcrire</button></form>
+        <form method="post" action="/t/{{ t.id }}/abandonner" onsubmit="return confirm('Arrêter sans transcrire et effacer l\'enregistrement ?')"><button class="bouton danger" type="submit">Abandonner</button></form>
+      </div>
+    </section>
+
+    {% elif t.statut == 'enregistrement' %}
+    <section class="direct">
+      <p class="message">Cet enregistrement n'est plus actif (le Transcripteur a peut-être été relancé).</p>
+      <div class="actions">
+        <form method="post" action="/t/{{ t.id }}/abandonner" onsubmit="return confirm('Effacer cet enregistrement sans le transcrire ?')"><button class="bouton danger" type="submit">Abandonner</button></form>
+      </div>
+    </section>
+
+    {% elif t.statut in ('en attente', 'transcription', 'synthèse') %}
+    <section class="direct" data-suivi="traitement" data-id="{{ t.id }}" data-statut="{{ t.statut }}">
+      <div class="progression"><span id="barre" style="width: {{ (t.progression * 100)|round|int }}%"></span></div>
+      <p id="etape">{{ t.etape or 'En attente…' }}</p>
+      <p class="discret">Vous pouvez quitter cette page&nbsp;: le traitement continue tant que le Transcripteur reste ouvert. Comptez de dix à trente minutes pour une heure d'entretien, puis quelques minutes pour la synthèse.</p>
+      {% if t.statut == 'en attente' %}
+      <form method="post" action="/t/{{ t.id }}/abandonner" onsubmit="return confirm('Retirer de la file sans transcrire et effacer l\'audio ?')"><button class="bouton danger petit" type="submit">Abandonner</button></form>
+      {% endif %}
+    </section>
+
+    {% elif t.statut in ('erreur', 'interrompue') %}
+    <section class="direct">
+      <p class="message">{{ t.erreur or t.etape }}</p>
+      <div class="actions">
+        {% if t.transcrit_le or t.audio %}
+        <form method="post" action="/t/{{ t.id }}/relancer"><button class="bouton principal" type="submit">{% if t.statut == 'interrompue' %}Transcrire ce qui a été enregistré{% else %}Relancer{% endif %}</button></form>
+        {% endif %}
+        {% if t.audio %}
+        <form method="post" action="/t/{{ t.id }}/abandonner" onsubmit="return confirm('Abandonner et effacer l\'audio ?')"><button class="bouton danger" type="submit">Abandonner</button></form>
+        {% endif %}
+      </div>
+    </section>
+
+    {% elif t.statut == 'abandonnée' %}
+    <p class="vide">{{ t.etape or 'Abandonnée sans transcription.' }}</p>
+
+    {% elif t.statut == 'terminée' %}
+    <p class="message">{{ t.etape }}</p>
+    <div class="actions">
+      {% if t.synthese %}
+      <a class="bouton principal" href="/t/{{ t.id }}/word">Télécharger la synthèse en Word</a>
+      {% endif %}
+      {% if t.texte %}
+      <a class="bouton" href="/t/{{ t.id }}/word?texte=1">Word avec le texte intégral</a>
+      {% endif %}
+      {% if t.texte and not t.synthese %}
+      <form method="post" action="/t/{{ t.id }}/relancer"><button class="bouton" type="submit">Rédiger la synthèse</button></form>
+      {% endif %}
+    </div>
+
+    {% if corriger %}
+    <h2>Corriger la synthèse</h2>
+    <form class="formulaire" method="post" action="/t/{{ t.id }}/synthese">
+      <textarea name="synthese" rows="24">{{ t.synthese }}</textarea>
+      <p class="discret">Un titre s'écrit entre deux paires d'étoiles (**Titre**), une liste avec un tiret en début de ligne.</p>
+      <div class="actions">
+        <button class="bouton principal" type="submit">Enregistrer</button>
+        <a class="bouton" href="/t/{{ t.id }}">Annuler</a>
+      </div>
+    </form>
+    {% elif t.synthese %}
+    <h2>Synthèse <span class="discret">rédigée sur ce PC par {{ t.modele_ollama }}, à relire</span>
+      <a class="bouton petit" href="/t/{{ t.id }}?corriger=1">Corriger</a>
+      <button class="bouton petit" type="button" data-copier="synthese">Copier</button></h2>
+    <div class="synthese" id="synthese">{{ t.synthese|rendu }}</div>
+    {% endif %}
+
+    <h2>Texte intégral {% if t.texte %}<button class="bouton petit" type="button" data-copier="texte">Copier</button>{% endif %}</h2>
+    {% if t.texte %}
+    <div class="texte-integral" id="texte">{{ t.texte }}</div>
+    <form class="actions" method="post" action="/t/{{ t.id }}/effacer-texte" onsubmit="return confirm('Effacer définitivement le texte intégral ? La synthèse reste.')">
+      <button class="bouton danger petit" type="submit">Effacer le texte intégral</button>
+      <span class="discret">Une fois la synthèse relue, le texte intégral n'est plus utile&nbsp;: l'effacer limite ce que le Transcripteur garde.</span>
+    </form>
+    {% elif t.texte_efface_le %}
+    <p class="vide">Texte intégral effacé le {{ t.texte_efface_le|date_fr(true) }}&nbsp;; la synthèse reste.</p>
+    {% else %}
+    <p class="vide">Aucune parole reconnue.</p>
+    {% endif %}
+    {% endif %}
+  </div>
+
+  <aside>
+    <h3>Journal</h3>
+    {% if journal %}
+    <ul class="journal">
+      {% for j in journal %}<li><span class="date">{{ j.date|date_fr(true) }}</span> {{ j.commentaire }}</li>{% endfor %}
+    </ul>
+    {% else %}<p class="vide">Rien d'inscrit.</p>{% endif %}
+    <p class="discret">Audio&nbsp;: {% if t.audio_efface_le %}effacé le {{ t.audio_efface_le|date_fr(true) }}{% elif t.audio %}gardé jusqu'à la fin de la transcription{% else %}aucun{% endif %}.
+      {% if t.modele_whisper %}Transcription&nbsp;: Whisper {{ t.modele_whisper }}.{% endif %}</p>
+    {% if t.statut not in ('enregistrement', 'transcription', 'synthèse') %}
+    <form method="post" action="/t/{{ t.id }}/supprimer" onsubmit="return confirm('Supprimer définitivement cette transcription, sa synthèse et son journal ?')">
+      <button class="bouton danger petit" type="submit">Supprimer cette transcription</button>
+    </form>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Suivi en direct : chrono et niveaux pendant l'enregistrement, progression pendant le traitement.
+  // Quand le statut change (fin de l'enregistrement, de la transcription…), la page se recharge.
+  (function () {
+    // Boutons « Copier » : le texte du bloc désigné part dans le presse-papiers.
+    document.querySelectorAll("[data-copier]").forEach(function (bouton) {
+      bouton.addEventListener("click", async function () {
+        await navigator.clipboard.writeText(document.getElementById(bouton.dataset.copier).innerText);
+        const libelle = bouton.textContent;
+        bouton.textContent = "Copié";
+        setTimeout(() => { bouton.textContent = libelle; }, 1500);
+      });
+    });
+
+    const bloc = document.querySelector("[data-suivi]");
+    if (!bloc) return;
+    const enregistrement = bloc.dataset.suivi === "enregistrement";
+    function hms(secondes) {
+      const s = Math.floor(secondes);
+      return [Math.floor(s / 3600), Math.floor(s % 3600 / 60), s % 60].map(n => String(n).padStart(2, "0")).join(":");
+    }
+    // Racine du niveau : la voix, faible en valeur brute, remplit ainsi la moitié de la barre.
+    function largeur(niveau) { return Math.min(100, Math.round(Math.sqrt(niveau) * 160)) + "%"; }
+    async function rafraichir() {
+      try {
+        const reponse = await fetch("/api/t/" + bloc.dataset.id, { cache: "no-store" });
+        if (!reponse.ok) return;
+        const etat = await reponse.json();
+        if (etat.statut !== bloc.dataset.statut) { location.reload(); return; }
+        if (enregistrement) {
+          if (etat.ecoule !== undefined) document.getElementById("chrono").textContent = hms(etat.ecoule);
+          if (etat.niveau_micro !== undefined) document.getElementById("niveau-micro").style.width = largeur(etat.niveau_micro);
+          const ordinateur = document.getElementById("niveau-ordinateur");
+          if (ordinateur && etat.niveau_ordinateur !== undefined) ordinateur.style.width = largeur(etat.niveau_ordinateur);
+          const alerte = document.getElementById("alerte");
+          alerte.hidden = !etat.alerte;
+          if (etat.alerte) alerte.textContent = "Attention : " + etat.alerte + ".";
+        } else {
+          document.getElementById("barre").style.width = Math.round(etat.progression * 100) + "%";
+          document.getElementById("etape").textContent = etat.etape || "En attente…";
+        }
+      } catch (erreur) {
+        // Transcripteur momentanément injoignable : on réessaie au tour suivant.
+      }
+    }
+    setInterval(rafraichir, enregistrement ? 1000 : 2000);
+    rafraichir();
+  })();
+</script>
+{% endblock %}

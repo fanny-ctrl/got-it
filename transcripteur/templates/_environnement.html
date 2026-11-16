@@ -1,0 +1,12 @@
+{# Ce qui est prêt sur ce PC : modèle de transcription, Ollama, chiffrement du disque. #}
+<h3>Sur ce PC</h3>
+<ul class="environnement">
+  <li>{% if environnement.whisper %}<span class="statut teinte-vert">prêt</span>{% else %}<span class="statut teinte-rouge">absent</span>{% endif %}
+    Transcription&nbsp;: Whisper {{ environnement.modele_whisper }}{% if not environnement.whisper %}. Lancez <code>installer.bat</code> une fois avec Internet pour le télécharger.{% endif %}</li>
+  <li>{% if environnement.ollama %}<span class="statut teinte-vert">prêt</span> Synthèse&nbsp;: Ollama, modèle {{ environnement.modele_ollama }}
+    {% elif environnement.ollama is none %}<span class="statut teinte-jaune">fermé</span> Synthèse&nbsp;: Ollama ne répond pas. Ouvrez-le depuis le menu Démarrer, sinon seule la transcription sera faite.
+    {% else %}<span class="statut teinte-jaune">sans modèle</span> Synthèse&nbsp;: Ollama n'a aucun modèle installé (<code>ollama pull mistral</code>).{% endif %}</li>
+  <li>{% if environnement.chiffrement == 'protégé' %}<span class="statut teinte-vert">chiffré</span>{% else %}<span class="statut teinte-rouge">{{ environnement.chiffrement }}</span>{% endif %}
+    Disque (BitLocker){% if environnement.chiffrement != 'protégé' %}&nbsp;: activez le chiffrement de l'appareil avant de conserver des transcriptions.{% endif %}</li>
+  <li>Rien n'est envoyé hors du PC&nbsp;: la transcription et la synthèse tournent sur cet ordinateur.</li>
+</ul>

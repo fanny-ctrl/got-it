@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+# Jamais de données dans le dépôt : la base et les enregistrements vivent dans C:\Users\<vous>\Transcripteur
+*.db
+*.wav
+enregistrements/
