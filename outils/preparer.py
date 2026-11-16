@@ -1,10 +1,10 @@
-"""Prépare le Transcripteur, une fois, avec Internet (appelé par installer.bat).
+"""Prépare Got-it, une fois, avec Internet (appelé par installer.bat).
 
 1. Télécharge le modèle Whisper large-v3-turbo (environ 1,6 Go) dans le cache Hugging Face du profil, s'il n'y est
-   pas déjà. Ensuite le Transcripteur transcrit hors ligne : transcripteur/traitement.py interdit tout
+   pas déjà. Ensuite Got-it transcrit hors ligne : transcripteur/traitement.py interdit tout
    téléchargement.
 2. Vérifie qu'Ollama répond et qu'il a un modèle de langue ; sinon, explique quoi faire (la synthèse est
-   facultative : sans Ollama, le Transcripteur fait la transcription seule).
+   facultative : sans Ollama, Got-it fait la transcription seule).
 
 Usage : .venv\\Scripts\\python.exe outils\\preparer.py
 Rien n'est envoyé : le script ne fait que télécharger le modèle depuis Hugging Face et interroger Ollama sur ce PC.
@@ -49,7 +49,7 @@ def verifier_ollama() -> None:
         if shutil.which("ollama"):
             print("Synthèse : Ollama est installé mais ne répond pas. Ouvrez-le depuis le menu Démarrer.")
         else:
-            print("Synthèse : Ollama n'est pas installé. Sans lui, le Transcripteur transcrit sans rédiger de synthèse.")
+            print("Synthèse : Ollama n'est pas installé. Sans lui, Got-it transcrit sans rédiger de synthèse.")
             print("Pour la synthèse : installez Ollama depuis https://ollama.com/download, puis tapez « ollama pull mistral ».")
         return
     if any(m == MODELE_OLLAMA or m.startswith(MODELE_OLLAMA + ":") for m in modeles):

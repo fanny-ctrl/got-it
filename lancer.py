@@ -1,7 +1,7 @@
-"""Lance le Transcripteur : démarre le serveur local et ouvre le navigateur.
+"""Lance Got-it : démarre le serveur local et ouvre le navigateur.
 
 Usage : python lancer.py [--sans-navigateur]
-Si le Transcripteur tourne déjà, ouvre simplement un nouvel onglet. Fermer la fenêtre noire arrête l'application.
+Si Got-it tourne déjà, ouvre simplement un nouvel onglet. Fermer la fenêtre noire arrête l'application.
 Le serveur n'écoute que sur 127.0.0.1 : il n'est pas joignable depuis un autre ordinateur.
 """
 
@@ -19,11 +19,11 @@ ADRESSE = f"http://127.0.0.1:{PORT}/"
 
 
 def deja_lance() -> bool:
-    """Vrai si un Transcripteur répond déjà sur le port."""
+    """Vrai si un Got-it répond déjà sur le port."""
     try:
         ouvreur = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # jamais de proxy pour le PC lui-même
         with ouvreur.open(ADRESSE + "api/version", timeout=2) as reponse:
-            return json.load(reponse).get("application") == "Transcripteur"
+            return json.load(reponse).get("application") == "Got-it"
     except Exception:
         return False
 
@@ -37,19 +37,19 @@ def port_occupe() -> bool:
 def main() -> None:
     ouvrir = "--sans-navigateur" not in sys.argv
     if deja_lance():
-        print("Le Transcripteur tourne déjà : ouverture d'un nouvel onglet.")
+        print("Got-it tourne déjà : ouverture d'un nouvel onglet.")
         if ouvrir:
             webbrowser.open(ADRESSE)
         return
     if port_occupe():
-        print(f"Le port {PORT} est occupé par un autre programme : le Transcripteur ne peut pas démarrer.")
+        print(f"Le port {PORT} est occupé par un autre programme : Got-it ne peut pas démarrer.")
         input("Appuyez sur Entrée pour fermer.")
         return
     import uvicorn
     from transcripteur.app import app
 
-    print(f"Le Transcripteur est lancé : {ADRESSE}")
-    print("Laissez cette fenêtre ouverte ; fermez-la pour arrêter le Transcripteur.")
+    print(f"Got-it est lancé : {ADRESSE}")
+    print("Laissez cette fenêtre ouverte ; fermez-la pour arrêter Got-it.")
     if ouvrir:
         threading.Timer(1.0, webbrowser.open, args=(ADRESSE,)).start()
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")

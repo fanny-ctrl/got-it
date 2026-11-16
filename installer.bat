@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-echo === Installation du Transcripteur ===
+echo === Installation de Got-it ===
 where py >nul 2>nul
 if %errorlevel% neq 0 (
   echo Python n'est pas installe. Telechargez-le sur https://www.python.org/downloads/windows/
@@ -27,5 +27,5 @@ echo.
 echo Preparation de la transcription (modele Whisper, environ 1,6 Go, une seule fois)...
 python outils\preparer.py
 echo.
-echo Installation terminee. Lancez le Transcripteur avec lancer.bat
+echo Installation terminee. Lancez Got-it avec lancer.bat
 pause

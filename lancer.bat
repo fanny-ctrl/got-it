@@ -2,9 +2,9 @@
 chcp 65001 >nul
 cd /d "%~dp0"
 if not exist ".venv\Scripts\python.exe" (
-  echo Le Transcripteur n'est pas installe : lancez d'abord installer.bat
+  echo Got-it n'est pas installe : lancez d'abord installer.bat
   pause
   exit /b 1
 )
-title Transcripteur
+title Got-it
 ".venv\Scripts\python.exe" lancer.py

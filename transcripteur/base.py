@@ -1,6 +1,6 @@
-"""La base SQLite du Transcripteur : transcriptions, journal et réglages.
+"""La base SQLite de Got-it : transcriptions, journal et réglages.
 
-Tout est rangé dans C:\\Users\\<vous>\\Transcripteur, volontairement hors des dossiers synchronisés (OneDrive,
+Tout est rangé dans C:\\Users\\<vous>\\Got-it, volontairement hors des dossiers synchronisés (OneDrive,
 Dropbox…) : la base `transcripteur.db` et, le temps d'une transcription, le dossier `enregistrements`.
 La variable TRANSCRIPTEUR_DONNEES désigne un autre dossier (les tests s'en servent pour travailler à part).
 """
@@ -14,7 +14,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-DOSSIER = Path(os.environ.get("TRANSCRIPTEUR_DONNEES") or Path.home() / "Transcripteur")
+DOSSIER = Path(os.environ.get("TRANSCRIPTEUR_DONNEES") or Path.home() / "Got-it")
 CHEMIN_BASE = DOSSIER / "transcripteur.db"
 
 SCHEMA = """

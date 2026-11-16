@@ -1,9 +1,9 @@
-"""Serveur de test : un Transcripteur à part, qui ne touche ni aux vraies données ni au vrai micro.
+"""Serveur de test : un Got-it à part, qui ne touche ni aux vraies données ni au vrai micro.
 
 Usage : .venv\\Scripts\\python.exe outils\\serveur_test.py [port] [dossier_audio]
 
 - Les données vont dans %TEMP%\\transcripteur-test (à supprimer après les tests), jamais dans
-  C:\\Users\\<vous>\\Transcripteur.
+  C:\\Users\\<vous>\\Got-it.
 - Si `dossier_audio` est donné, aucun périphérique réel n'est ouvert : `micro.wav` (et `ordinateur.wav` s'il
   existe) de ce dossier sont rejoués à la place du micro et du son de l'ordinateur.
 """
@@ -27,5 +27,5 @@ import uvicorn  # noqa: E402
 
 from transcripteur.app import app  # noqa: E402
 
-print(f"Transcripteur de test : http://127.0.0.1:{port}/ (données dans {os.environ['TRANSCRIPTEUR_DONNEES']})")
+print(f"Got-it de test : http://127.0.0.1:{port}/ (données dans {os.environ['TRANSCRIPTEUR_DONNEES']})")
 uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")

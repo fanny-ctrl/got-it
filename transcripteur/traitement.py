@@ -8,7 +8,7 @@
   réglages. Sans Ollama, la transcription se fait quand même, sans synthèse.
 
 Les traitements passent un par un dans une file, dans un fil d'exécution ; au démarrage, `reprendre()` remet en
-file ce qu'un arrêt du Transcripteur a coupé.
+file ce qu'un arrêt de Got-it a coupé.
 """
 
 from __future__ import annotations
@@ -345,11 +345,11 @@ def reprendre() -> None:
                     duree = audio.duree_wav(chemin) if chemin and chemin.exists() else 0.0
                 except Exception:
                     duree = 0.0
-                etape = "Enregistrement coupé par l'arrêt du Transcripteur"
+                etape = "Enregistrement coupé par l'arrêt de Got-it"
                 etape += f" : {duree_lisible(duree)} conservées." if duree else "."
                 conn.execute("UPDATE transcriptions SET statut = 'interrompue', duree = ?, etape = ?, modifie_le = ?"
                              " WHERE id = ?", (duree, etape, base.maintenant(), t["id"]))
-                base.journaliser(conn, t["id"], "arrêt du Transcripteur pendant l'enregistrement")
+                base.journaliser(conn, t["id"], "arrêt de Got-it pendant l'enregistrement")
             a_reprendre = [r["id"] for r in conn.execute(
                 "SELECT id FROM transcriptions WHERE statut IN ('en attente', 'transcription', 'synthèse')"
                 " ORDER BY id")]

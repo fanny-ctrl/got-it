@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titre %}Nouvel enregistrement · Transcripteur{% endblock %}
+{% block titre %}Nouvel enregistrement · Got-it{% endblock %}
 {% block contenu %}
 {# Préparation d'un enregistrement : rattachement, formule d'information, accord du client, ce qu'on enregistre ;
    ou import d'un fichier audio. Un seul formulaire, deux boutons : « Enregistrer » (accord obligatoire) et
@@ -67,7 +67,7 @@
     </div>
 
     <h2>Ou transcrire un fichier audio</h2>
-    <p class="discret">Dictaphone, téléphone, enregistrement d'une visio&nbsp;: le fichier d'origine n'est jamais modifié&nbsp;; le Transcripteur en garde une copie le temps de la transcription, puis l'efface.</p>
+    <p class="discret">Dictaphone, téléphone, enregistrement d'une visio&nbsp;: le fichier d'origine n'est jamais modifié&nbsp;; Got-it en garde une copie le temps de la transcription, puis l'efface.</p>
     <label>Fichier
       <input type="file" name="fichier" id="fichier" accept="audio/*,video/mp4,{{ extensions }}">
     </label>
@@ -80,7 +80,7 @@
   <aside>
     {% include "_environnement.html" %}
     <h3>Après l'enregistrement</h3>
-    <p>L'audio est transcrit puis effacé aussitôt. La synthèse suit la trame des <a href="/reglages">réglages</a>. Comptez de dix à trente minutes pour une heure d'entretien&nbsp;; vous pouvez fermer la page pendant le traitement, pas le Transcripteur.</p>
+    <p>L'audio est transcrit puis effacé aussitôt. La synthèse suit la trame des <a href="/reglages">réglages</a>. Comptez de dix à trente minutes pour une heure d'entretien&nbsp;; vous pouvez fermer la page pendant le traitement, pas Got-it.</p>
     <p class="discret">La transcription et la synthèse se trompent parfois (noms propres, chiffres, nuances)&nbsp;: la synthèse est un document de travail à relire, jamais à transmettre tel quel.</p>
   </aside>
 </div>

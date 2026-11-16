@@ -1,7 +1,7 @@
 .venv/
 __pycache__/
 *.pyc
-# Jamais de données dans le dépôt : la base et les enregistrements vivent dans C:\Users\<vous>\Transcripteur
+# Jamais de données dans le dépôt : la base et les enregistrements vivent dans C:\Users\<vous>\Got-it
 *.db
 *.wav
 enregistrements/

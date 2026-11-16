@@ -1,4 +1,4 @@
-# Transcripteur
+# Got-it
 
 Un petit logiciel pour avocats qui enregistre un rendez-vous, le transcrit et en rédige une synthèse, **entièrement sur votre ordinateur**. Aucun service en ligne, aucun compte, aucune télémétrie : ni l'audio, ni le texte, ni la synthèse ne quittent le PC. Il a été écrit pour que la transcription automatique reste compatible avec le secret professionnel.
 
@@ -13,19 +13,19 @@ L'audio est écrasé puis supprimé dès qu'il est transcrit. Il reste le texte 
 - Windows 10 ou 11.
 - [Python](https://www.python.org/downloads/windows/) 3.12 ou plus récent (cochez « Add python.exe to PATH » à l'installation).
 - Environ 3 Go de disque pour la transcription, et 8 Go de mémoire vive ou plus.
-- Pour la synthèse (facultative) : [Ollama](https://ollama.com/download), puis la commande `ollama pull mistral` dans un terminal (environ 4 Go). Sans Ollama, le Transcripteur transcrit sans rédiger de synthèse.
-- Un disque chiffré (BitLocker, « Chiffrement de l'appareil » dans les paramètres de Windows) : le Transcripteur vous signale s'il ne l'est pas.
+- Pour la synthèse (facultative) : [Ollama](https://ollama.com/download), puis la commande `ollama pull mistral` dans un terminal (environ 4 Go). Sans Ollama, Got-it transcrit sans rédiger de synthèse.
+- Un disque chiffré (BitLocker, « Chiffrement de l'appareil » dans les paramètres de Windows) : Got-it vous signale s'il ne l'est pas.
 
 ## Installation (une seule fois)
 
 1. Téléchargez ce dépôt (bouton vert « Code », puis « Download ZIP ») et décompressez-le où vous voulez.
 2. Double-cliquez sur `installer.bat`.
 
-L'installation est le **seul moment où Internet est utilisé** : elle télécharge les bibliothèques Python et le modèle de transcription Whisper (environ 1,6 Go). Ensuite, le Transcripteur s'interdit tout téléchargement et fonctionne hors ligne.
+L'installation est le **seul moment où Internet est utilisé** : elle télécharge les bibliothèques Python et le modèle de transcription Whisper (environ 1,6 Go). Ensuite, Got-it s'interdit tout téléchargement et fonctionne hors ligne.
 
 ## Utilisation
 
-Double-cliquez sur `lancer.bat`. Une fenêtre noire s'ouvre (c'est le logiciel : elle doit rester ouverte) et votre navigateur affiche <http://127.0.0.1:8780/>. Fermer la fenêtre noire arrête le Transcripteur.
+Double-cliquez sur `lancer.bat`. Une fenêtre noire s'ouvre (c'est le logiciel : elle doit rester ouverte) et votre navigateur affiche <http://127.0.0.1:8780/>. Fermer la fenêtre noire arrête Got-it.
 
 1. **Réglages** (la première fois) : indiquez votre nom ; adaptez si vous le souhaitez la formule d'information et la trame de la synthèse.
 2. **Nouvel enregistrement** : donnez un titre, le client, les participants (leurs noms aident la transcription à les orthographier).
@@ -46,7 +46,7 @@ Double-cliquez sur `lancer.bat`. Une fenêtre noire s'ouvre (c'est le logiciel :
 - La transcription est faite par [faster-whisper](https://github.com/SYSTRAN/faster-whisper) sur le processeur du PC, avec `HF_HUB_OFFLINE` : aucun téléchargement possible en dehors de l'installation.
 - La synthèse est rédigée par Ollama, interrogé sur `127.0.0.1:11434`, sans passer par un proxy.
 - L'audio est gardé le temps de la transcription, puis écrasé (une passe de zéros) et supprimé. Sur un disque SSD, l'écrasement n'offre pas de garantie absolue : c'est le chiffrement du disque qui protège.
-- Les données sont dans `C:\Users\<vous>\Transcripteur`, volontairement hors de OneDrive, Dropbox ou Google Drive. Ne déplacez pas ce dossier dans un dossier synchronisé.
+- Les données sont dans `C:\Users\<vous>\Got-it`, volontairement hors de OneDrive, Dropbox ou Google Drive. Ne déplacez pas ce dossier dans un dossier synchronisé.
 - Les pages n'appellent aucune police, aucun script ni aucune image sur Internet.
 
 Le logiciel ne peut pas garantir à votre place le reste de la chaîne : chiffrement et verrouillage du poste, sauvegardes, accès de tiers à l'ordinateur.
@@ -87,4 +87,4 @@ Le dossier contient `micro.wav` et, pour essayer le mode visioconférence, `ordi
 
 ## Licence
 
-MIT : voir [LICENSE](LICENSE). Le Transcripteur s'appuie sur faster-whisper, SoundCard, FastAPI, python-docx et Ollama, chacun sous sa propre licence.
+MIT : voir [LICENSE](LICENSE). Got-it s'appuie sur faster-whisper, SoundCard, FastAPI, python-docx et Ollama, chacun sous sa propre licence.
