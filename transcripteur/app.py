@@ -13,6 +13,8 @@ Routes :
   POST /t/{id}/effacer-texte      efface le texte intégral (minimisation) ; la synthèse reste
   POST /t/{id}/supprimer          supprime la transcription, sa synthèse et son journal
   GET  /t/{id}/word               la synthèse en Word (?texte=1 : avec le texte intégral)
+  POST /t/{id}/ranger             dépose le compte rendu Word dans le dossier de rangement
+  POST /reglages/dossier          choisit (fenêtre de Windows) ou oublie le dossier de rangement
   GET  /api/t/{id}                état en JSON pour le suivi (chrono, niveaux, progression)
   GET  /reglages, POST /reglages  nom de l'avocat, formule d'information, trame de la synthèse, modèle Ollama
   GET  /api/version               pour que lancer.py reconnaisse un Got it! déjà ouvert
@@ -36,7 +38,7 @@ from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse,
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import VERSION, audio, base, rendu, traitement
+from . import VERSION, audio, base, rangement, rendu, traitement
 
 RACINE = Path(__file__).parent
 
@@ -96,14 +98,7 @@ async def page_d_erreur(request: Request, erreur: HTTPException):
 
 # ---------------------------------------------------------------- utilitaires
 
-def date_fr(valeur: str, avec_heure: bool = False) -> str:
-    """'2026-11-16T14:03:22' → '16/11/2026', ou '16/11/2026 à 14 h 03'."""
-    if not valeur or len(valeur) < 10:
-        return ""
-    jour = f"{valeur[8:10]}/{valeur[5:7]}/{valeur[:4]}"
-    if avec_heure and len(valeur) >= 16:
-        jour += f" à {valeur[11:13]} h {valeur[14:16]}"
-    return jour
+date_fr = rangement.date_fr
 
 
 templates.env.filters["date_fr"] = date_fr
@@ -322,7 +317,10 @@ def fiche(request: Request, tid: int, message: str = "", corriger: int = 0):
     conn.close()
     enregistrement = _enregistrement
     actif = enregistrement is not None and enregistrement.transcription_id == tid
-    return rendre(request, "fiche.html", t=t, journal=journal, message=message, actif=actif,
+    conn = base.connexion()
+    choix = rangement.reglages(conn)
+    conn.close()
+    return rendre(request, "fiche.html", t=t, journal=journal, message=message, actif=actif, rangement=choix,
                   corriger=bool(corriger) and t["statut"] == "terminée",
                   ecoule=time.time() - enregistrement.debut if actif else 0)
 
@@ -407,7 +405,26 @@ async def corriger_synthese(request: Request, tid: int):
             raise HTTPException(400, "La transcription n'est pas terminée.")
         traitement.maj(conn, tid, synthese=champ(form, "synthese"))
         base.journaliser(conn, tid, "synthèse corrigée à la main")
+    conn = base.connexion()
+    try:
+        rangement.ranger_si_demande(conn, tid)      # le fichier rangé suit la correction
+    finally:
+        conn.close()
     return page(tid, "La synthèse corrigée est enregistrée.")
+
+
+@app.post("/t/{tid}/ranger")
+def ranger_compte_rendu(tid: int):
+    """Dépose le compte rendu Word dans le dossier de rangement choisi dans les réglages."""
+    conn = base.connexion()
+    try:
+        charger(conn, tid)
+        chemin = rangement.ranger(conn, tid)
+    except RuntimeError as erreur:
+        raise HTTPException(400, str(erreur)) from None
+    finally:
+        conn.close()
+    return page(tid, f"Le compte rendu est rangé : {chemin}")
 
 
 @app.post("/t/{tid}/effacer-texte")
@@ -445,14 +462,8 @@ def telecharger_word(tid: int, texte: int = 0):
     conn.close()
     if t["statut"] != "terminée":
         raise HTTPException(400, "La transcription n'est pas terminée.")
-    proprietes = [("Date", date_fr(t["cree_le"], True))]
-    proprietes += [(nom, valeur) for nom, valeur in (("Avocat", avocat), ("Client", t["client"]),
-                                                    ("Dossier", t["dossier"]),
-                                                    ("Participants", t["participants"])) if valeur]
-    if t["duree"]:
-        proprietes.append(("Durée", traitement.duree_lisible(t["duree"])))
-    contenu = rendu.en_word(t, proprietes, avec_texte=bool(texte))
-    nom = f"{t['cree_le'][:10]} {slug(t['titre'])}.docx"
+    contenu = rendu.en_word(t, rangement.proprietes(t, avocat), avec_texte=bool(texte))
+    nom = rangement.nom_fichier(t)
     return Response(contenu, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(nom)}"})
 
@@ -496,9 +507,37 @@ def reglages(request: Request, message: str = ""):
                "trame": base.reglage(conn, "trame") or traitement.TRAME_DEFAUT,
                "modele_ollama": base.reglage(conn, "modele_ollama")}
     environnement = traitement.environnement(conn)
+    choix = rangement.reglages(conn)
     conn.close()
     return rendre(request, "reglages.html", valeurs=valeurs, environnement=environnement, message=message,
-                  dossier=str(base.DOSSIER))
+                  dossier=str(base.DOSSIER), rangement=choix)
+
+
+@app.post("/reglages/dossier")
+async def choisir_dossier_de_rangement(request: Request):
+    """Ouvre la fenêtre « Choisir un dossier » de Windows, ou oublie le dossier (bouton « Ne plus ranger »)."""
+    form = await request.form()
+    if form.get("oublier"):
+        with transaction() as conn:
+            base.regler(conn, "dossier_rangement", "")
+        message = "Les comptes rendus ne sont plus rangés dans un dossier."
+    else:
+        conn = base.connexion()
+        actuel = base.reglage(conn, "dossier_rangement")
+        conn.close()
+        choisi = rangement.choisir_dossier(actuel)
+        if not choisi:
+            message = "Aucun dossier choisi : rien n'a changé."
+        elif not Path(choisi).is_dir():
+            message = f"Ce dossier est introuvable : {choisi}"
+        else:
+            with transaction() as conn:
+                base.regler(conn, "dossier_rangement", choisi)
+                if not actuel:      # premier choix : rangement automatique, synthèse seule
+                    base.regler(conn, "rangement_auto", "1")
+                    base.regler(conn, "rangement_texte", "")
+            message = f"Les comptes rendus seront rangés dans : {choisi}"
+    return RedirectResponse(f"/reglages?{urlencode({'message': message})}#rangement", status_code=303)
 
 
 @app.post("/reglages")
@@ -513,5 +552,7 @@ async def enregistrer_reglages(request: Request):
         else:
             for cle in ("avocat", "information", "trame", "modele_ollama"):
                 base.regler(conn, cle, champ(form, cle))
+            for cle in ("rangement_auto", "rangement_texte"):
+                base.regler(conn, cle, "1" if form.get(cle) else "")
             message = "Les réglages sont enregistrés."
     return RedirectResponse(f"/reglages?{urlencode({'message': message})}", status_code=303)

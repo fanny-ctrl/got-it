@@ -217,6 +217,8 @@ h3 {
 }
 .formulaire label.choix input { margin-top: 5px; accent-color: var(--ardoise); }
 .formulaire label.accord { font-weight: 600; }
+.formulaire label.choix > .discret { display: block; }
+.chemin code { display: inline-block; padding: 8px 12px; font-size: 13.5px; word-break: break-all; }
 .encadre {
   background: var(--feuille);
   border: 1px solid var(--filet);

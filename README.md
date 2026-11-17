@@ -59,6 +59,7 @@ La fenêtre est celle de Microsoft Edge (présent sur tout Windows 10 ou 11) ou,
 - L'audio est gardé le temps de la transcription, puis écrasé (une passe de zéros) et supprimé. Sur un disque SSD, l'écrasement n'offre pas de garantie absolue : c'est le chiffrement du disque qui protège.
 - Les données sont dans `C:\Users\<vous>\Got-it`, volontairement hors de OneDrive, Dropbox ou Google Drive. Ne déplacez pas ce dossier dans un dossier synchronisé.
 - Les pages n'appellent aucune police, aucun script ni aucune image sur Internet.
+- **Dossier de rangement (facultatif)** : dans les réglages, vous pouvez choisir un dossier où le compte rendu Word de chaque rendez-vous est déposé, automatiquement ou à la demande. Si ce dossier est synchronisé (OneDrive, Google Drive, Dropbox…), les comptes rendus qui y sont rangés quittent le PC par ce service : c'est votre choix, et Got it! vous le signale. Par défaut, seule la synthèse est rangée ; le texte intégral n'y entre que si vous cochez la case. L'audio et la base ne sont jamais rangés.
 - La fenêtre utilise un profil de navigateur à part, rangé avec les données, sans extensions ni synchronisation.
 
 Le logiciel ne peut pas garantir à votre place le reste de la chaîne : chiffrement et verrouillage du poste, sauvegardes, accès de tiers à l'ordinateur.
@@ -82,6 +83,7 @@ Tout est en français : fichiers, fonctions, variables, messages.
 | `transcripteur/app.py` | Pages, routes et contrôle de provenance des requêtes |
 | `transcripteur/audio.py` | Micros et sorties, enregistrement du micro et du son de l'ordinateur, lecture et effacement des fichiers |
 | `transcripteur/traitement.py` | Transcription (Whisper), synthèse (Ollama), file des traitements |
+| `transcripteur/rangement.py` | Dossier de rangement des comptes rendus Word, nom des fichiers |
 | `transcripteur/rendu.py` | Mise en forme de la synthèse à l'écran et en Word |
 | `transcripteur/base.py` | Base SQLite : transcriptions, journal, réglages |
 | `transcripteur/templates/`, `transcripteur/static/` | Pages HTML (Jinja2) et feuille de style |

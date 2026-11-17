@@ -81,10 +81,16 @@
       {% if t.texte %}
       <a class="bouton" href="/t/{{ t.id }}/word?texte=1">Word avec le texte intégral</a>
       {% endif %}
+      {% if rangement.dossier and (t.synthese or (rangement.texte and t.texte)) %}
+      <form method="post" action="/t/{{ t.id }}/ranger"><button class="bouton" type="submit" title="{{ rangement.dossier }}">Ranger dans le dossier</button></form>
+      {% endif %}
       {% if t.texte and not t.synthese %}
       <form method="post" action="/t/{{ t.id }}/relancer"><button class="bouton" type="submit">Rédiger la synthèse</button></form>
       {% endif %}
     </div>
+    {% if not rangement.dossier %}
+    <p class="discret">Pour ranger automatiquement vos comptes rendus dans un dossier, choisissez-le dans les <a href="/reglages#rangement">réglages</a>.</p>
+    {% endif %}
 
     {% if corriger %}
     <h2>Corriger la synthèse</h2>

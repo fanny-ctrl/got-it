@@ -28,6 +28,32 @@
       </select>
     </label>
 
+    <h2 id="rangement">Dossier de rangement</h2>
+    <p>Le compte rendu Word de chaque rendez-vous peut être déposé dans un dossier de votre choix, par exemple celui du client ou un dossier de votre drive.</p>
+    {% if rangement.dossier %}
+    <p class="chemin"><code>{{ rangement.dossier }}</code></p>
+    {% if not rangement.accessible %}
+    <p class="message">Ce dossier est introuvable pour l'instant (disque débranché, dossier renommé…). Les comptes rendus ne seront pas rangés tant qu'il manque.</p>
+    {% endif %}
+    {% if rangement.service %}
+    <p class="message">Ce dossier semble synchronisé avec {{ rangement.service }}&nbsp;: les comptes rendus qui y sont rangés quittent ce PC par ce service. C'est le seul contenu de Got it! qui le fait&nbsp;; l'audio et la base restent sur le PC.</p>
+    {% endif %}
+    {% else %}
+    <p class="vide">Aucun dossier choisi&nbsp;: les comptes rendus restent dans Got it!, à télécharger un par un.</p>
+    {% endif %}
+    <div class="actions">
+      <button class="bouton" type="submit" formaction="/reglages/dossier">{% if rangement.dossier %}Changer de dossier…{% else %}Choisir un dossier…{% endif %}</button>
+      {% if rangement.dossier %}<button class="bouton danger" type="submit" formaction="/reglages/dossier" name="oublier" value="1">Ne plus ranger</button>{% endif %}
+      <span class="discret">La fenêtre de choix de Windows s'ouvre par-dessus Got it!.</span>
+    </div>
+    {% if rangement.dossier %}
+    <label class="choix"><input type="checkbox" name="rangement_auto" value="1" {% if rangement.auto %}checked{% endif %}> Ranger automatiquement le compte rendu dès qu'une transcription est terminée, et le mettre à jour quand la synthèse est corrigée</label>
+    <label class="choix"><input type="checkbox" name="rangement_texte" value="1" {% if rangement.texte %}checked{% endif %}> Inclure le texte intégral de l'entretien dans le fichier rangé
+      <span class="discret">Sans cette case, seule la synthèse est rangée&nbsp;: le mot-à-mot de l'entretien reste sur ce PC.</span></label>
+    {% else %}
+    <input type="hidden" name="rangement_auto" value="1">
+    {% endif %}
+
     <div class="actions">
       <button class="bouton principal" type="submit">Enregistrer</button>
       <button class="bouton" type="submit" name="retablir" value="1" onclick="return confirm('Rétablir la formule d\'information et la trame d\'origine ?')">Rétablir la formule et la trame d'origine</button>

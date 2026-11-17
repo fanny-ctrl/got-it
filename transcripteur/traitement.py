@@ -326,6 +326,8 @@ def signaleur(conn, tid: int):
 def terminer(conn, tid: int, etape: str) -> None:
     maj(conn, tid, statut="terminée", progression=1.0, etape=etape, termine_le=base.maintenant())
     noter(conn, tid, etape)
+    from . import rangement
+    rangement.ranger_si_demande(conn, tid)
 
 
 def traiter(tid: int) -> None:
