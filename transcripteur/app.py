@@ -474,6 +474,20 @@ def etat(tid: int):
     return reponse
 
 
+@app.post("/modele/telecharger")
+def telecharger_modele(request: Request):
+    """Lance le téléchargement du modèle de transcription (le seul accès à Internet, à la demande)."""
+    traitement.demarrer_telechargement()
+    retour = request.headers.get("referer") or "/nouvelle"
+    return RedirectResponse(retour if retour.startswith(f"http://{request.headers.get('host')}/") else "/nouvelle",
+                            status_code=303)
+
+
+@app.get("/api/modele")
+def etat_modele():
+    return traitement.etat_telechargement()
+
+
 @app.get("/reglages", response_class=HTMLResponse)
 def reglages(request: Request, message: str = ""):
     conn = base.connexion()

@@ -10,18 +10,25 @@ L'audio est écrasé puis supprimé dès qu'il est transcrit. Il reste le texte 
 
 ## Ce qu'il faut
 
-- Windows 10 ou 11.
-- [Python](https://www.python.org/downloads/windows/) 3.12 ou plus récent (cochez « Add python.exe to PATH » à l'installation).
-- Environ 3 Go de disque pour la transcription, et 8 Go de mémoire vive ou plus.
+- Windows 10 ou 11 (64 bits).
+- Environ 3 Go de disque, et 8 Go de mémoire vive ou plus.
 - Pour la synthèse (facultative) : [Ollama](https://ollama.com/download), puis la commande `ollama pull mistral` dans un terminal (environ 4 Go). Sans Ollama, Got-it transcrit sans rédiger de synthèse.
 - Un disque chiffré (BitLocker, « Chiffrement de l'appareil » dans les paramètres de Windows) : Got-it vous signale s'il ne l'est pas.
 
-## Installation (une seule fois)
+## Installation
 
-1. Téléchargez ce dépôt (bouton vert « Code », puis « Download ZIP ») et décompressez-le où vous voulez.
-2. Double-cliquez sur `installer.bat`. À la fin, une icône « Got-it » apparaît sur le Bureau (`raccourci.bat` la recrée si besoin).
+1. Sur la page [Releases](https://github.com/fanny-ctrl/got-it/releases), téléchargez `Got-it-Setup-….exe`.
+2. Double-cliquez dessus. Windows affiche « Windows a protégé votre ordinateur », parce que l'installateur n'est pas signé numériquement : cliquez sur « Informations complémentaires », puis sur « Exécuter quand même ».
+3. Suivez l'installation (aucun droit d'administrateur n'est demandé). Got-it apparaît sur le Bureau et dans le menu Démarrer.
+4. À la première ouverture, page « Nouvel enregistrement », cliquez sur **« Télécharger le modèle (1,6 Go) »**. C'est à faire une seule fois.
 
-L'installation est le **seul moment où Internet est utilisé** : elle télécharge les bibliothèques Python et le modèle de transcription Whisper (environ 1,6 Go). Ensuite, Got-it s'interdit tout téléchargement et fonctionne hors ligne.
+Ce téléchargement du modèle de transcription (depuis Hugging Face) est le **seul moment où Got-it utilise Internet** : il reçoit le modèle et n'envoie rien. Ensuite, Got-it s'interdit tout téléchargement et fonctionne hors ligne.
+
+Pour désinstaller : Paramètres de Windows, Applications, Got-it. Vos transcriptions (`C:\Users\<vous>\Got-it`) et le modèle (`C:\Users\<vous>\.cache\huggingface`) ne sont pas supprimés par la désinstallation : effacez ces dossiers vous-même si vous ne voulez rien garder.
+
+### Installation depuis le code (pour qui veut le lire ou le modifier)
+
+Il faut [Python](https://www.python.org/downloads/windows/) 3.12 ou plus récent (cochez « Add python.exe to PATH »). Téléchargez ce dépôt (bouton vert « Code », puis « Download ZIP »), décompressez-le, puis double-cliquez sur `installer.bat` : il installe les bibliothèques, télécharge le modèle et crée l'icône du Bureau (`raccourci.bat` la recrée si besoin).
 
 ## Utilisation
 
@@ -78,10 +85,11 @@ Tout est en français : fichiers, fonctions, variables, messages.
 | `transcripteur/rendu.py` | Mise en forme de la synthèse à l'écran et en Word |
 | `transcripteur/base.py` | Base SQLite : transcriptions, journal, réglages |
 | `transcripteur/templates/`, `transcripteur/static/` | Pages HTML (Jinja2) et feuille de style |
+| `installateur/fabriquer.ps1`, `installateur/got-it.iss` | Fabrication de l'installateur `Got-it-Setup-….exe` (PyInstaller, puis Inno Setup) |
 | `outils/preparer.py` | Téléchargement du modèle Whisper à l'installation, vérification d'Ollama |
 | `outils/serveur_test.py` | Serveur de test : données à part, faux micro qui rejoue des fichiers |
 
-Pour changer de modèle de transcription (un PC modeste préférera `small`), modifiez `MODELE_WHISPER` dans `transcripteur/traitement.py` et `outils/preparer.py`, puis relancez `installer.bat`.
+Pour changer de modèle de transcription (un PC modeste préférera `small`), définissez la variable d'environnement `TRANSCRIPTEUR_MODELE` (par exemple `small`) avant de lancer Got-it : il proposera de télécharger ce modèle.
 
 ### Tester sans micro
 

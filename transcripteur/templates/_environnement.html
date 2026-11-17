@@ -1,12 +1,38 @@
 {# Ce qui est prêt sur ce PC : modèle de transcription, Ollama, chiffrement du disque. #}
+{% set tel = environnement.telechargement %}
 <h3>Sur ce PC</h3>
 <ul class="environnement">
-  <li>{% if environnement.whisper %}<span class="statut teinte-vert">prêt</span>{% else %}<span class="statut teinte-rouge">absent</span>{% endif %}
-    Transcription&nbsp;: Whisper {{ environnement.modele_whisper }}{% if not environnement.whisper %}. Lancez <code>installer.bat</code> une fois avec Internet pour le télécharger.{% endif %}</li>
+  <li id="modele" data-en-cours="{{ '1' if tel.en_cours else '' }}">
+    {% if environnement.whisper %}<span class="statut teinte-vert">prêt</span> Transcription&nbsp;: Whisper {{ environnement.modele_whisper }}
+    {% elif tel.en_cours %}<span class="statut teinte-bleu">téléchargement</span> Modèle de transcription&nbsp;: <span id="modele-avancement">en cours…</span>
+      <div class="progression"><span id="modele-barre" style="width: {{ (tel.progression * 100)|round|int }}%"></span></div>
+      <span class="discret">Vous pouvez continuer à préparer le rendez-vous. Si Got-it est fermé, le téléchargement reprendra où il en était.</span>
+    {% else %}<span class="statut teinte-rouge">à télécharger</span> Modèle de transcription (Whisper {{ environnement.modele_whisper }})
+      {% if tel.erreur %}<p class="message">{{ tel.erreur }}</p>{% endif %}
+      <form method="post" action="/modele/telecharger"><button class="bouton principal petit" type="submit">Télécharger le modèle (1,6&nbsp;Go)</button></form>
+      <span class="discret">À faire une seule fois, avec Internet. C'est le seul moment où Got-it se connecte&nbsp;: il télécharge le modèle depuis Hugging Face et n'envoie rien. Ensuite, tout fonctionne hors ligne.</span>
+    {% endif %}</li>
   <li>{% if environnement.ollama %}<span class="statut teinte-vert">prêt</span> Synthèse&nbsp;: Ollama, modèle {{ environnement.modele_ollama }}
-    {% elif environnement.ollama is none %}<span class="statut teinte-jaune">fermé</span> Synthèse&nbsp;: Ollama ne répond pas. Ouvrez-le depuis le menu Démarrer, sinon seule la transcription sera faite.
+    {% elif environnement.ollama is none %}<span class="statut teinte-jaune">absent</span> Synthèse&nbsp;: Ollama ne répond pas. S'il est installé, ouvrez-le depuis le menu Démarrer&nbsp;; sinon, seule la transcription sera faite (voir le mode d'emploi pour l'installer).
     {% else %}<span class="statut teinte-jaune">sans modèle</span> Synthèse&nbsp;: Ollama n'a aucun modèle installé (<code>ollama pull mistral</code>).{% endif %}</li>
   <li>{% if environnement.chiffrement == 'protégé' %}<span class="statut teinte-vert">chiffré</span>{% else %}<span class="statut teinte-rouge">{{ environnement.chiffrement }}</span>{% endif %}
     Disque (BitLocker){% if environnement.chiffrement != 'protégé' %}&nbsp;: activez le chiffrement de l'appareil avant de conserver des transcriptions.{% endif %}</li>
   <li>Rien n'est envoyé hors du PC&nbsp;: la transcription et la synthèse tournent sur cet ordinateur.</li>
 </ul>
+<script>
+  // Pendant le téléchargement du modèle : avancement relu toutes les deux secondes, page rechargée à la fin.
+  (function () {
+    const ligne = document.getElementById("modele");
+    if (!ligne || ligne.dataset.enCours !== "1") return;
+    setInterval(async function () {
+      try {
+        const etat = await (await fetch("/api/modele", { cache: "no-store" })).json();
+        if (!etat.en_cours) { location.reload(); return; }
+        const mo = Math.round(etat.recu / 1048576);
+        document.getElementById("modele-avancement").textContent =
+          etat.total ? mo + " Mo sur " + Math.round(etat.total / 1048576) + " Mo" : mo + " Mo reçus";
+        document.getElementById("modele-barre").style.width = Math.round(etat.progression * 100) + "%";
+      } catch (erreur) { /* on réessaie au tour suivant */ }
+    }, 2000);
+  })();
+</script>

@@ -29,7 +29,13 @@ from pathlib import Path  # noqa: E402
 
 from . import audio, base  # noqa: E402
 
-MODELE_WHISPER = "large-v3-turbo"
+import subprocess  # noqa: E402
+import sys  # noqa: E402
+
+# La variable TRANSCRIPTEUR_MODELE permet d'essayer un autre modèle (« tiny » pour les tests, « small » sur un
+# PC modeste) sans toucher au code.
+MODELE_WHISPER = os.environ.get("TRANSCRIPTEUR_MODELE") or "large-v3-turbo"
+TAILLES_MODELES = {"large-v3-turbo": 1_621_667_008}     # octets, pour la barre de progression
 TYPE_CALCUL = "int8"
 LANGUE = "fr"
 MODELE_OLLAMA = "mistral"
@@ -123,6 +129,61 @@ def modele_whisper_present() -> bool:
         return False
 
 
+# Le téléchargement du modèle : le seul moment où Got-it va sur Internet, à la demande de l'utilisateur.
+# Il se fait dans un programme à part (`lancer.py --telecharger-modele`), parce que ce programme-ci s'est
+# interdit tout téléchargement dès son démarrage (HF_HUB_OFFLINE).
+_telechargement: subprocess.Popen | None = None
+_fin_telechargement = ""        # message d'échec du dernier téléchargement
+
+
+def _dossier_du_modele() -> Path | None:
+    """Le dossier du cache Hugging Face où le modèle arrive, pour mesurer l'avancement."""
+    try:
+        from faster_whisper.utils import _MODELS
+        from huggingface_hub.constants import HF_HUB_CACHE
+        depot = _MODELS.get(MODELE_WHISPER, MODELE_WHISPER)
+        return Path(HF_HUB_CACHE) / ("models--" + depot.replace("/", "--"))
+    except Exception:
+        return None
+
+
+def demarrer_telechargement() -> None:
+    global _telechargement, _fin_telechargement
+    with _verrou:
+        if _telechargement is not None and _telechargement.poll() is None:
+            return
+        _fin_telechargement = ""
+        if getattr(sys, "frozen", False):       # Got-it installé : le programme se relance lui-même
+            commande = [sys.executable, "--telecharger-modele"]
+        else:
+            commande = [sys.executable, str(Path(__file__).resolve().parent.parent / "lancer.py"),
+                        "--telecharger-modele"]
+        environnement_fils = {**os.environ, "HF_HUB_OFFLINE": "0", "HF_HUB_DISABLE_XET": "1",
+                              "HF_HUB_DISABLE_TELEMETRY": "1", "TRANSCRIPTEUR_MODELE": MODELE_WHISPER}
+        _telechargement = subprocess.Popen(commande, env=environnement_fils, stdin=subprocess.DEVNULL,
+                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+
+
+def etat_telechargement() -> dict:
+    """Où en est le modèle : présent, en cours de téléchargement (avec l'avancement), ou absent."""
+    global _fin_telechargement
+    en_cours = _telechargement is not None and _telechargement.poll() is None
+    if _telechargement is not None and not en_cours and _telechargement.returncode not in (0, None):
+        _fin_telechargement = ("Le téléchargement a échoué : vérifiez la connexion à Internet, puis réessayez. "
+                               "Ce qui est déjà téléchargé est gardé.")
+    present = False if en_cours else modele_whisper_present()
+    recu = 0
+    if en_cours:
+        dossier = _dossier_du_modele()
+        if dossier is not None and dossier.exists():
+            recu = sum(f.stat().st_size for f in dossier.rglob("*") if f.is_file() and not f.is_symlink())
+    total = TAILLES_MODELES.get(MODELE_WHISPER, 0)
+    return {"present": present, "en_cours": en_cours, "recu": recu, "total": total,
+            "progression": round(min(recu / total, 0.99), 3) if total else 0,
+            "erreur": "" if present or en_cours else _fin_telechargement}
+
+
 def ouvrir_url(requete, delai: float):
     """Appel à Ollama, sur ce PC : jamais par un proxy, même si Windows en déclare un."""
     return urllib.request.build_opener(urllib.request.ProxyHandler({})).open(requete, timeout=delai)
@@ -147,6 +208,7 @@ def choisir_modele(modeles: list[str], prefere: str = "") -> str:
 def environnement(conn) -> dict:
     modeles = ollama_modeles()
     return {"whisper": modele_whisper_present(), "modele_whisper": MODELE_WHISPER, "ollama": modeles,
+            "telechargement": etat_telechargement(),
             "modele_ollama": choisir_modele(modeles, base.reglage(conn, "modele_ollama")) if modeles else "",
             "chiffrement": base.etat_chiffrement()}
 
@@ -278,6 +340,10 @@ def traiter(tid: int) -> None:
             chemin = chemin_audio(t["audio"])
             if chemin is None or not chemin.exists():
                 raise RuntimeError("Le fichier audio n'existe plus : il n'y a rien à transcrire.")
+            if not modele_whisper_present():
+                raise RuntimeError("Le modèle de transcription n'est pas encore sur ce PC : téléchargez-le depuis "
+                                   "la page « Nouvel enregistrement », puis cliquez sur « Relancer ». "
+                                   "L'enregistrement est gardé en attendant.")
             maj(conn, tid, statut="transcription", progression=0.0, etape="Chargement du modèle de transcription…",
                 erreur="")
             texte, duree = transcrire_audio(chemin, invite_whisper(t, avocat), signaleur(conn, tid))

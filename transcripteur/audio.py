@@ -40,8 +40,17 @@ def dossier_test() -> Path | None:
     return Path(chemin) if chemin else None
 
 
+_verrou_import = threading.Lock()
+
+
 def _preparer_fil() -> None:
-    """Windows exige que chaque fil d'exécution qui touche au son initialise COM."""
+    """Windows exige que chaque fil d'exécution qui touche au son initialise COM.
+
+    L'ordre compte : soundcard initialise COM lui-même à son premier chargement, pour le fil qui le charge, et
+    refuse de se charger si COM l'est déjà (« Error 0x100000001 »). On le charge donc d'abord, une seule fois,
+    puis on initialise COM pour le fil courant (sans effet s'il l'est déjà)."""
+    with _verrou_import:
+        import soundcard  # noqa: F401
     if sys.platform == "win32":
         import ctypes
         ctypes.windll.ole32.CoInitializeEx(None, 0)

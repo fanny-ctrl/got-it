@@ -91,7 +91,31 @@ def dans_le_navigateur() -> None:
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
 
+def telecharger_modele() -> int:
+    """Télécharge le modèle de transcription, puis s'arrête (programme à part lancé par l'application :
+    voir transcripteur/traitement.py). Un téléchargement interrompu reprend où il en était."""
+    os.environ["HF_HUB_OFFLINE"] = "0"
+    os.environ["HF_HUB_DISABLE_XET"] = "1"
+    os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
+    from transcripteur import base
+
+    base.DOSSIER.mkdir(parents=True, exist_ok=True)
+    sys.stdout = sys.stderr = open(base.DOSSIER / "journal-technique.txt", "a", encoding="utf-8", buffering=1)
+    try:
+        from faster_whisper.utils import download_model
+        from transcripteur.traitement import MODELE_WHISPER
+
+        download_model(MODELE_WHISPER)
+        return 0
+    except Exception:
+        print("Téléchargement du modèle :", traceback.format_exc())
+        return 1
+
+
 def main() -> None:
+    if "--telecharger-modele" in sys.argv:
+        sys.exit(telecharger_modele())
+
     from transcripteur import base
 
     if deja_lance():
