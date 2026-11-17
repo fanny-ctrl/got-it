@@ -27,5 +27,7 @@ echo.
 echo Preparation de la transcription (modele Whisper, environ 1,6 Go, une seule fois)...
 python outils\preparer.py
 echo.
-echo Installation terminee. Lancez Got-it avec lancer.bat
+powershell -NoProfile -ExecutionPolicy Bypass -File "outils\raccourci.ps1"
+echo.
+echo Installation terminee. Ouvrez Got-it avec son raccourci sur le Bureau, ou avec lancer.bat
 pause

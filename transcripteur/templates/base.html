@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titre %}Got-it{% endblock %}</title>
+  <link rel="icon" href="/static/icone.ico">
   <link rel="stylesheet" href="/static/style.css?v={{ version }}">
 </head>
 <body>
@@ -19,6 +20,10 @@
   <main>
     {% block contenu %}{% endblock %}
   </main>
+  <script>
+    // Signe de présence : tant qu'une page est ouverte, Got-it reste en marche (voir lancer.py).
+    setInterval(function () { fetch("/api/presence", { cache: "no-store" }).catch(function () {}); }, 5000);
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

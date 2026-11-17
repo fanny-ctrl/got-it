@@ -177,6 +177,50 @@ def creer_ligne(conn, champs: dict, source: str, statut: str, accord_le: str = "
 
 # ---------------------------------------------------------------- pages
 
+# ---------------------------------------------------------------- pour le lanceur (lancer.py)
+
+_presence = time.time()
+
+
+def signaler_presence() -> None:
+    global _presence
+    _presence = time.time()
+
+
+def derniere_presence() -> float:
+    """L'instant du dernier signe d'une page de Got-it ouverte (chaque page en donne un toutes les cinq secondes)."""
+    return _presence
+
+
+def en_activite() -> bool:
+    """Vrai tant qu'un enregistrement ou un traitement est en cours : le serveur ne doit pas s'arrêter."""
+    if _enregistrement is not None:
+        return True
+    conn = base.connexion()
+    try:
+        return conn.execute("SELECT 1 FROM transcriptions WHERE statut IN ('en attente', 'transcription', 'synthèse')"
+                            " LIMIT 1").fetchone() is not None
+    finally:
+        conn.close()
+
+
+def fermer_enregistrement(raison: str) -> None:
+    """Fenêtre fermée pendant un enregistrement : on ne laisse pas le micro ouvert sans rien à l'écran.
+    L'enregistrement est arrêté et part en transcription, comme avec « Arrêter et transcrire »."""
+    tid = enregistrement_en_cours()
+    if tid is None:
+        return
+    arreter_enregistrement(tid)
+    with transaction() as conn:
+        base.journaliser(conn, tid, f"enregistrement arrêté automatiquement : {raison}")
+
+
+@app.get("/api/presence")
+def presence():
+    signaler_presence()
+    return {"present": True}
+
+
 @app.get("/api/version")
 def version_api():
     return {"application": "Got-it", "version": VERSION}

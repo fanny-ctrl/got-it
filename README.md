@@ -19,19 +19,23 @@ L'audio est écrasé puis supprimé dès qu'il est transcrit. Il reste le texte 
 ## Installation (une seule fois)
 
 1. Téléchargez ce dépôt (bouton vert « Code », puis « Download ZIP ») et décompressez-le où vous voulez.
-2. Double-cliquez sur `installer.bat`.
+2. Double-cliquez sur `installer.bat`. À la fin, une icône « Got-it » apparaît sur le Bureau (`raccourci.bat` la recrée si besoin).
 
 L'installation est le **seul moment où Internet est utilisé** : elle télécharge les bibliothèques Python et le modèle de transcription Whisper (environ 1,6 Go). Ensuite, Got-it s'interdit tout téléchargement et fonctionne hors ligne.
 
 ## Utilisation
 
-Double-cliquez sur `lancer.bat`. Une fenêtre noire s'ouvre (c'est le logiciel : elle doit rester ouverte) et votre navigateur affiche <http://127.0.0.1:8780/>. Fermer la fenêtre noire arrête Got-it.
+Double-cliquez sur l'icône **Got-it** du Bureau (ou sur `lancer.bat`). Got-it s'ouvre dans sa propre fenêtre, comme une application : pas d'onglet, pas de barre d'adresse, pas de fenêtre noire.
+
+Fermer la fenêtre arrête Got-it. Si un enregistrement est en cours, il est arrêté et transcrit ; si une transcription est en cours, elle se termine en arrière-plan, puis Got-it s'arrête. Rouvrir Got-it à tout moment montre où elle en est.
+
+La fenêtre est celle de Microsoft Edge (présent sur tout Windows 10 ou 11) ou, à défaut, de Chrome, en mode « application », avec un profil à part : sans vos extensions, sans synchronisation, sans votre historique. Si ni l'un ni l'autre n'est installé, Got-it s'ouvre dans votre navigateur habituel.
 
 1. **Réglages** (la première fois) : indiquez votre nom ; adaptez si vous le souhaitez la formule d'information et la trame de la synthèse.
 2. **Nouvel enregistrement** : donnez un titre, le client, les participants (leurs noms aident la transcription à les orthographier).
 3. **Informez le client et recueillez son accord**, puis cochez la case : sans elle, l'enregistrement ne démarre pas. L'heure de l'accord est inscrite au journal de la transcription.
 4. Choisissez **« Le micro seul »** ou **« Le micro et le son de l'ordinateur »**, puis « Enregistrer ». Deux barres de niveau montrent en direct que le micro et l'ordinateur sont bien captés.
-5. **« Arrêter et transcrire »** : comptez de dix à trente minutes de traitement pour une heure d'entretien, selon le PC. Vous pouvez fermer la page, pas la fenêtre noire.
+5. **« Arrêter et transcrire »** : comptez de dix à trente minutes de traitement pour une heure d'entretien, selon le PC. Vous pouvez fermer la fenêtre : le traitement se termine en arrière-plan.
 6. Relisez la synthèse, corrigez-la, téléchargez-la en Word. Une fois la synthèse relue, « Effacer le texte intégral » limite ce qui est conservé ; « Supprimer cette transcription » efface tout.
 
 ### Conseils pour la visioconférence
@@ -48,6 +52,7 @@ Double-cliquez sur `lancer.bat`. Une fenêtre noire s'ouvre (c'est le logiciel :
 - L'audio est gardé le temps de la transcription, puis écrasé (une passe de zéros) et supprimé. Sur un disque SSD, l'écrasement n'offre pas de garantie absolue : c'est le chiffrement du disque qui protège.
 - Les données sont dans `C:\Users\<vous>\Got-it`, volontairement hors de OneDrive, Dropbox ou Google Drive. Ne déplacez pas ce dossier dans un dossier synchronisé.
 - Les pages n'appellent aucune police, aucun script ni aucune image sur Internet.
+- La fenêtre utilise un profil de navigateur à part, rangé avec les données, sans extensions ni synchronisation.
 
 Le logiciel ne peut pas garantir à votre place le reste de la chaîne : chiffrement et verrouillage du poste, sauvegardes, accès de tiers à l'ordinateur.
 
@@ -65,7 +70,8 @@ Tout est en français : fichiers, fonctions, variables, messages.
 
 | Fichier | Rôle |
 | --- | --- |
-| `lancer.py` | Point d'entrée : serveur local (port 8780) et navigateur |
+| `lancer.py` | Point d'entrée : serveur local (port 8780) et fenêtre de l'application ; s'arrête quand la fenêtre est fermée et les traitements finis |
+| `raccourci.bat`, `outils/raccourci.ps1`, `outils/creer_icone.py` | Raccourci du Bureau et icône |
 | `transcripteur/app.py` | Pages, routes et contrôle de provenance des requêtes |
 | `transcripteur/audio.py` | Micros et sorties, enregistrement du micro et du son de l'ordinateur, lecture et effacement des fichiers |
 | `transcripteur/traitement.py` | Transcription (Whisper), synthèse (Ollama), file des traitements |

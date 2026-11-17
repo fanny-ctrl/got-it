@@ -50,7 +50,7 @@
     <section class="direct" data-suivi="traitement" data-id="{{ t.id }}" data-statut="{{ t.statut }}">
       <div class="progression"><span id="barre" style="width: {{ (t.progression * 100)|round|int }}%"></span></div>
       <p id="etape">{{ t.etape or 'En attente…' }}</p>
-      <p class="discret">Vous pouvez quitter cette page&nbsp;: le traitement continue tant que Got-it reste ouvert. Comptez de dix à trente minutes pour une heure d'entretien, puis quelques minutes pour la synthèse.</p>
+      <p class="discret">Vous pouvez quitter cette page ou fermer la fenêtre&nbsp;: le traitement se termine en arrière-plan. Comptez de dix à trente minutes pour une heure d'entretien, puis quelques minutes pour la synthèse.</p>
       {% if t.statut == 'en attente' %}
       <form method="post" action="/t/{{ t.id }}/abandonner" onsubmit="return confirm('Retirer de la file sans transcrire et effacer l\'audio ?')"><button class="bouton danger petit" type="submit">Abandonner</button></form>
       {% endif %}
