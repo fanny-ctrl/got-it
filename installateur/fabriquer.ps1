@@ -1,4 +1,4 @@
-# Fabrique l'installateur de Got-it : Got-it-Setup-<version>.exe, dans le dossier "distribution".
+# Fabrique l'installateur de Got it! : Got-it-Setup-<version>.exe, dans le dossier "distribution".
 # Usage (depuis le dossier du projet) : powershell -ExecutionPolicy Bypass -File installateur\fabriquer.ps1
 # Il faut : l'environnement .venv (installer.bat), PyInstaller (pip install pyinstaller) et Inno Setup 6.
 # (Sans accents : Windows PowerShell 5.1.)
@@ -9,7 +9,7 @@ $travail = Join-Path $env:TEMP 'got-it-fabrication'      # hors du projet : plus
 $sortie = Join-Path $racine 'distribution'
 
 $version = (& $python -c "import sys; sys.path.insert(0, r'$racine'); import transcripteur; print(transcripteur.VERSION)").Trim()
-Write-Host "=== Got-it $version : empaquetage de Python et des bibliotheques ==="
+Write-Host "=== Got it! $version : empaquetage de Python et des bibliotheques ==="
 if (Test-Path $travail) { Remove-Item -Recurse -Force $travail }
 & $python -m PyInstaller --noconfirm --clean --log-level WARN --windowed --name Got-it `
     --icon (Join-Path $racine 'transcripteur\static\icone.ico') `

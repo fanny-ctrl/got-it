@@ -8,7 +8,7 @@ Deux façons d'enregistrer :
 
 La bibliothèque soundcard parle à Windows ; chaque source est lue dans son propre fil d'exécution et un dernier
 fil mélange les sources et écrit un WAV 16 kHz mono. Le module wave réécrit l'en-tête à chaque bloc : le fichier
-reste lisible même si Got-it s'arrête pendant l'enregistrement.
+reste lisible même si Got it! s'arrête pendant l'enregistrement.
 
 Pour les tests, la variable TRANSCRIPTEUR_AUDIO_TEST désigne un dossier : `micro.wav` (et `ordinateur.wav` s'il
 existe) y sont rejoués à la place des vrais périphériques. Aucun micro réel n'est alors ouvert.
@@ -280,7 +280,7 @@ def duree_wav(chemin: Path) -> float:
 def lire_audio(chemin: Path) -> np.ndarray:
     """L'audio en 16 kHz mono, nombres flottants, comme Whisper l'attend.
 
-    Un WAV 16 kHz mono 16 bits (les enregistrements de Got-it) est lu tel quel ; tout autre fichier est
+    Un WAV 16 kHz mono 16 bits (les enregistrements de Got it!) est lu tel quel ; tout autre fichier est
     décodé par PyAV. On ne passe pas par `faster_whisper.decode_audio` : il appelle `av.open(...,
     metadata_errors=...)`, option que PyAV a retirée (version 19), ce qui fait échouer la transcription."""
     if chemin.suffix.lower() == ".wav":

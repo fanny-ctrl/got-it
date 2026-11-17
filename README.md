@@ -1,4 +1,4 @@
-# Got-it
+# Got it!
 
 Un petit logiciel pour avocats qui enregistre un rendez-vous, le transcrit et en rédige une synthèse, **entièrement sur votre ordinateur**. Aucun service en ligne, aucun compte, aucune télémétrie : ni l'audio, ni le texte, ni la synthèse ne quittent le PC. Il a été écrit pour que la transcription automatique reste compatible avec le secret professionnel.
 
@@ -12,19 +12,19 @@ L'audio est écrasé puis supprimé dès qu'il est transcrit. Il reste le texte 
 
 - Windows 10 ou 11 (64 bits).
 - Environ 3 Go de disque, et 8 Go de mémoire vive ou plus.
-- Pour la synthèse (facultative) : [Ollama](https://ollama.com/download), puis la commande `ollama pull mistral` dans un terminal (environ 4 Go). Sans Ollama, Got-it transcrit sans rédiger de synthèse.
-- Un disque chiffré (BitLocker, « Chiffrement de l'appareil » dans les paramètres de Windows) : Got-it vous signale s'il ne l'est pas.
+- Pour la synthèse (facultative) : [Ollama](https://ollama.com/download), puis la commande `ollama pull mistral` dans un terminal (environ 4 Go). Sans Ollama, Got it! transcrit sans rédiger de synthèse.
+- Un disque chiffré (BitLocker, « Chiffrement de l'appareil » dans les paramètres de Windows) : Got it! vous signale s'il ne l'est pas.
 
 ## Installation
 
 1. Sur la page [Releases](https://github.com/fanny-ctrl/got-it/releases), téléchargez `Got-it-Setup-….exe`.
 2. Double-cliquez dessus. Windows affiche « Windows a protégé votre ordinateur », parce que l'installateur n'est pas signé numériquement : cliquez sur « Informations complémentaires », puis sur « Exécuter quand même ».
-3. Suivez l'installation (aucun droit d'administrateur n'est demandé). Got-it apparaît sur le Bureau et dans le menu Démarrer.
+3. Suivez l'installation (aucun droit d'administrateur n'est demandé). Got it! apparaît sur le Bureau et dans le menu Démarrer.
 4. À la première ouverture, page « Nouvel enregistrement », cliquez sur **« Télécharger le modèle (1,6 Go) »**. C'est à faire une seule fois.
 
-Ce téléchargement du modèle de transcription (depuis Hugging Face) est le **seul moment où Got-it utilise Internet** : il reçoit le modèle et n'envoie rien. Ensuite, Got-it s'interdit tout téléchargement et fonctionne hors ligne.
+Ce téléchargement du modèle de transcription (depuis Hugging Face) est le **seul moment où Got it! utilise Internet** : il reçoit le modèle et n'envoie rien. Ensuite, Got it! s'interdit tout téléchargement et fonctionne hors ligne.
 
-Pour désinstaller : Paramètres de Windows, Applications, Got-it. Vos transcriptions (`C:\Users\<vous>\Got-it`) et le modèle (`C:\Users\<vous>\.cache\huggingface`) ne sont pas supprimés par la désinstallation : effacez ces dossiers vous-même si vous ne voulez rien garder.
+Pour désinstaller : Paramètres de Windows, Applications, Got it! Vos transcriptions (`C:\Users\<vous>\Got-it`) et le modèle (`C:\Users\<vous>\.cache\huggingface`) ne sont pas supprimés par la désinstallation : effacez ces dossiers vous-même si vous ne voulez rien garder.
 
 ### Installation depuis le code (pour qui veut le lire ou le modifier)
 
@@ -32,11 +32,11 @@ Il faut [Python](https://www.python.org/downloads/windows/) 3.12 ou plus récent
 
 ## Utilisation
 
-Double-cliquez sur l'icône **Got-it** du Bureau (ou sur `lancer.bat`). Got-it s'ouvre dans sa propre fenêtre, comme une application : pas d'onglet, pas de barre d'adresse, pas de fenêtre noire.
+Double-cliquez sur l'icône **Got it!** du Bureau (ou sur `lancer.bat`). Got it! s'ouvre dans sa propre fenêtre, comme une application : pas d'onglet, pas de barre d'adresse, pas de fenêtre noire.
 
-Fermer la fenêtre arrête Got-it. Si un enregistrement est en cours, il est arrêté et transcrit ; si une transcription est en cours, elle se termine en arrière-plan, puis Got-it s'arrête. Rouvrir Got-it à tout moment montre où elle en est.
+Fermer la fenêtre arrête Got it! Si un enregistrement est en cours, il est arrêté et transcrit ; si une transcription est en cours, elle se termine en arrière-plan, puis Got it! s'arrête. Rouvrir Got it! à tout moment montre où elle en est.
 
-La fenêtre est celle de Microsoft Edge (présent sur tout Windows 10 ou 11) ou, à défaut, de Chrome, en mode « application », avec un profil à part : sans vos extensions, sans synchronisation, sans votre historique. Si ni l'un ni l'autre n'est installé, Got-it s'ouvre dans votre navigateur habituel.
+La fenêtre est celle de Microsoft Edge (présent sur tout Windows 10 ou 11) ou, à défaut, de Chrome, en mode « application », avec un profil à part : sans vos extensions, sans synchronisation, sans votre historique. Si ni l'un ni l'autre n'est installé, Got it! s'ouvre dans votre navigateur habituel.
 
 1. **Réglages** (la première fois) : indiquez votre nom ; adaptez si vous le souhaitez la formule d'information et la trame de la synthèse.
 2. **Nouvel enregistrement** : donnez un titre, le client, les participants (leurs noms aident la transcription à les orthographier).
@@ -89,7 +89,7 @@ Tout est en français : fichiers, fonctions, variables, messages.
 | `outils/preparer.py` | Téléchargement du modèle Whisper à l'installation, vérification d'Ollama |
 | `outils/serveur_test.py` | Serveur de test : données à part, faux micro qui rejoue des fichiers |
 
-Pour changer de modèle de transcription (un PC modeste préférera `small`), définissez la variable d'environnement `TRANSCRIPTEUR_MODELE` (par exemple `small`) avant de lancer Got-it : il proposera de télécharger ce modèle.
+Pour changer de modèle de transcription (un PC modeste préférera `small`), définissez la variable d'environnement `TRANSCRIPTEUR_MODELE` (par exemple `small`) avant de lancer Got it! : il proposera de télécharger ce modèle.
 
 ### Tester sans micro
 
@@ -101,4 +101,4 @@ Le dossier contient `micro.wav` et, pour essayer le mode visioconférence, `ordi
 
 ## Licence
 
-MIT : voir [LICENSE](LICENSE). Got-it s'appuie sur faster-whisper, SoundCard, FastAPI, python-docx et Ollama, chacun sous sa propre licence.
+MIT : voir [LICENSE](LICENSE). Got it! s'appuie sur faster-whisper, SoundCard, FastAPI, python-docx et Ollama, chacun sous sa propre licence.

@@ -6,11 +6,11 @@
     {% if environnement.whisper %}<span class="statut teinte-vert">prêt</span> Transcription&nbsp;: Whisper {{ environnement.modele_whisper }}
     {% elif tel.en_cours %}<span class="statut teinte-bleu">téléchargement</span> Modèle de transcription&nbsp;: <span id="modele-avancement">en cours…</span>
       <div class="progression"><span id="modele-barre" style="width: {{ (tel.progression * 100)|round|int }}%"></span></div>
-      <span class="discret">Vous pouvez continuer à préparer le rendez-vous. Si Got-it est fermé, le téléchargement reprendra où il en était.</span>
+      <span class="discret">Vous pouvez continuer à préparer le rendez-vous. Si Got it! est fermé, le téléchargement reprendra où il en était.</span>
     {% else %}<span class="statut teinte-rouge">à télécharger</span> Modèle de transcription (Whisper {{ environnement.modele_whisper }})
       {% if tel.erreur %}<p class="message">{{ tel.erreur }}</p>{% endif %}
       <form method="post" action="/modele/telecharger"><button class="bouton principal petit" type="submit">Télécharger le modèle (1,6&nbsp;Go)</button></form>
-      <span class="discret">À faire une seule fois, avec Internet. C'est le seul moment où Got-it se connecte&nbsp;: il télécharge le modèle depuis Hugging Face et n'envoie rien. Ensuite, tout fonctionne hors ligne.</span>
+      <span class="discret">À faire une seule fois, avec Internet. C'est le seul moment où Got it! se connecte&nbsp;: il télécharge le modèle depuis Hugging Face et n'envoie rien. Ensuite, tout fonctionne hors ligne.</span>
     {% endif %}</li>
   <li>{% if environnement.ollama %}<span class="statut teinte-vert">prêt</span> Synthèse&nbsp;: Ollama, modèle {{ environnement.modele_ollama }}
     {% elif environnement.ollama is none %}<span class="statut teinte-jaune">absent</span> Synthèse&nbsp;: Ollama ne répond pas. S'il est installé, ouvrez-le depuis le menu Démarrer&nbsp;; sinon, seule la transcription sera faite (voir le mode d'emploi pour l'installer).

@@ -1,4 +1,4 @@
-"""Serveur de test : un Got-it à part, qui ne touche ni aux vraies données ni au vrai micro.
+"""Serveur de test : un Got it! à part, qui ne touche ni aux vraies données ni au vrai micro.
 
 Usage : .venv\\Scripts\\python.exe outils\\serveur_test.py [port] [dossier_audio]
 
@@ -27,5 +27,5 @@ import uvicorn  # noqa: E402
 
 from transcripteur.app import app  # noqa: E402
 
-print(f"Got-it de test : http://127.0.0.1:{port}/ (données dans {os.environ['TRANSCRIPTEUR_DONNEES']})")
+print(f"Got it! de test : http://127.0.0.1:{port}/ (données dans {os.environ['TRANSCRIPTEUR_DONNEES']})")
 uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")

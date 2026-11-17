@@ -1,5 +1,5 @@
-"""Dessine l'icône de Got-it (transcripteur/static/icone.ico) : cinq barres blanches, comme une onde sonore,
-sur un carré bleu aux coins arrondis. Sans bibliothèque d'image : le PNG est écrit à la main.
+"""Dessine l'icône de Got it! (transcripteur/static/icone.ico) : cinq barres laiton, comme une onde sonore,
+sur un carré ardoise aux coins arrondis. Sans bibliothèque d'image : le PNG est écrit à la main.
 
 Usage : .venv\\Scripts\\python.exe outils\\creer_icone.py   (à relancer seulement pour changer l'icône)
 """
@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 SORTIE = Path(__file__).resolve().parent.parent / "transcripteur" / "static" / "icone.ico"
-BLEU = (31, 78, 121)
+BLEU = (38, 41, 45)        # ardoise
 TAILLES = (256, 64, 48, 32, 16)
 BARRES = (0.30, 0.58, 0.82, 0.50, 0.26)   # hauteur de chaque barre, en part de la hauteur de l'icône
 
@@ -38,7 +38,7 @@ def dessiner(taille: int) -> np.ndarray:
         barres |= rectangle_arrondi(y, x, x0, 0.5 - hauteur / 2, x0 + largeur, 0.5 + hauteur / 2, largeur / 2)
     image = np.zeros((n, n, 4), dtype=np.float64)
     image[fond] = (*BLEU, 255)
-    image[barres & fond] = (255, 255, 255, 255)
+    image[barres & fond] = (217, 178, 106, 255)     # laiton
     # Réduction par moyenne, couleurs pondérées par l'opacité.
     blocs = image.reshape(taille, 4, taille, 4, 4)
     alpha = blocs[..., 3].mean(axis=(1, 3))

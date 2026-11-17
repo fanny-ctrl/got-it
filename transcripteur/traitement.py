@@ -8,7 +8,7 @@
   réglages. Sans Ollama, la transcription se fait quand même, sans synthèse.
 
 Les traitements passent un par un dans une file, dans un fil d'exécution ; au démarrage, `reprendre()` remet en
-file ce qu'un arrêt de Got-it a coupé.
+file ce qu'un arrêt de Got it! a coupé.
 """
 
 from __future__ import annotations
@@ -129,7 +129,7 @@ def modele_whisper_present() -> bool:
         return False
 
 
-# Le téléchargement du modèle : le seul moment où Got-it va sur Internet, à la demande de l'utilisateur.
+# Le téléchargement du modèle : le seul moment où Got it! va sur Internet, à la demande de l'utilisateur.
 # Il se fait dans un programme à part (`lancer.py --telecharger-modele`), parce que ce programme-ci s'est
 # interdit tout téléchargement dès son démarrage (HF_HUB_OFFLINE).
 _telechargement: subprocess.Popen | None = None
@@ -153,7 +153,7 @@ def demarrer_telechargement() -> None:
         if _telechargement is not None and _telechargement.poll() is None:
             return
         _fin_telechargement = ""
-        if getattr(sys, "frozen", False):       # Got-it installé : le programme se relance lui-même
+        if getattr(sys, "frozen", False):       # Got it! installé : le programme se relance lui-même
             commande = [sys.executable, "--telecharger-modele"]
         else:
             commande = [sys.executable, str(Path(__file__).resolve().parent.parent / "lancer.py"),
@@ -411,11 +411,11 @@ def reprendre() -> None:
                     duree = audio.duree_wav(chemin) if chemin and chemin.exists() else 0.0
                 except Exception:
                     duree = 0.0
-                etape = "Enregistrement coupé par l'arrêt de Got-it"
+                etape = "Enregistrement coupé par l'arrêt de Got it!"
                 etape += f" : {duree_lisible(duree)} conservées." if duree else "."
                 conn.execute("UPDATE transcriptions SET statut = 'interrompue', duree = ?, etape = ?, modifie_le = ?"
                              " WHERE id = ?", (duree, etape, base.maintenant(), t["id"]))
-                base.journaliser(conn, t["id"], "arrêt de Got-it pendant l'enregistrement")
+                base.journaliser(conn, t["id"], "arrêt de Got it! pendant l'enregistrement")
             a_reprendre = [r["id"] for r in conn.execute(
                 "SELECT id FROM transcriptions WHERE statut IN ('en attente', 'transcription', 'synthèse')"
                 " ORDER BY id")]

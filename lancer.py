@@ -1,15 +1,15 @@
-"""Lance Got-it dans sa propre fenêtre, comme une application.
+"""Lance Got it! dans sa propre fenêtre, comme une application.
 
-Usage : pythonw lancer.py                 la fenêtre de Got-it, sans fenêtre noire (raccourci du Bureau, lancer.bat)
+Usage : pythonw lancer.py                 la fenêtre de Got it!, sans fenêtre noire (raccourci du Bureau, lancer.bat)
         python lancer.py --navigateur     dans le navigateur habituel, avec les messages dans le terminal
 
 La fenêtre est celle de Microsoft Edge (présent sur tout Windows 10 ou 11) ou, à défaut, de Chrome, en mode
 « application » : ni onglets ni barre d'adresse, et un profil à part, sans extensions ni synchronisation, rangé
-avec les données de Got-it. Le serveur n'écoute que sur 127.0.0.1 : il n'est pas joignable depuis un autre
+avec les données de Got it! Le serveur n'écoute que sur 127.0.0.1 : il n'est pas joignable depuis un autre
 ordinateur.
 
-Fermer la fenêtre arrête Got-it. Un enregistrement en cours est alors arrêté et transcrit ; une transcription
-en cours se termine d'abord, sans fenêtre, puis Got-it s'arrête. Relancer Got-it pendant ce temps rouvre
+Fermer la fenêtre arrête Got it! Un enregistrement en cours est alors arrêté et transcrit ; une transcription
+en cours se termine d'abord, sans fenêtre, puis Got it! s'arrête. Relancer Got it! pendant ce temps rouvre
 simplement la fenêtre.
 """
 
@@ -36,13 +36,13 @@ def message(texte: str) -> None:
     """Un message à l'utilisateur : une boîte de dialogue s'il n'y a pas de terminal, sinon une ligne."""
     if sys.platform == "win32" and (sys.stdout is None or not sys.stdout.isatty()):
         import ctypes
-        ctypes.windll.user32.MessageBoxW(None, texte, "Got-it", 0x40)
+        ctypes.windll.user32.MessageBoxW(None, texte, "Got it!", 0x40)
     else:
         print(texte)
 
 
 def deja_lance() -> bool:
-    """Vrai si un Got-it répond déjà sur le port."""
+    """Vrai si un Got it! répond déjà sur le port."""
     try:
         ouvreur = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # jamais de proxy pour le PC lui-même
         with ouvreur.open(ADRESSE + "api/version", timeout=2) as reponse:
@@ -68,7 +68,7 @@ def navigateur_application() -> Path | None:
 
 
 def ouvrir_fenetre(dossier_donnees: Path) -> subprocess.Popen | None:
-    """Ouvre la fenêtre de Got-it ; None si ni Edge ni Chrome n'est installé."""
+    """Ouvre la fenêtre de Got it! ; None si ni Edge ni Chrome n'est installé."""
     navigateur = navigateur_application()
     if navigateur is None:
         return None
@@ -85,8 +85,8 @@ def dans_le_navigateur() -> None:
     import uvicorn
     from transcripteur.app import app
 
-    print(f"Got-it est lancé : {ADRESSE}")
-    print("Laissez cette fenêtre ouverte ; fermez-la pour arrêter Got-it.")
+    print(f"Got it! est lancé : {ADRESSE}")
+    print("Laissez cette fenêtre ouverte ; fermez-la pour arrêter Got it!")
     threading.Timer(1.0, webbrowser.open, args=(ADRESSE,)).start()
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
@@ -123,7 +123,7 @@ def main() -> None:
             webbrowser.open(ADRESSE)
         return
     if port_occupe():
-        message(f"Le port {PORT} est occupé par un autre programme : Got-it ne peut pas démarrer.")
+        message(f"Le port {PORT} est occupé par un autre programme : Got it! ne peut pas démarrer.")
         return
     if "--navigateur" in sys.argv:
         dans_le_navigateur()
@@ -144,7 +144,7 @@ def main() -> None:
     while not serveur.started and fil.is_alive() and time.time() - debut < 30:
         time.sleep(0.1)
     if not serveur.started:
-        message("Got-it n'a pas pu démarrer. Le détail est dans le fichier journal-technique.txt du dossier "
+        message("Got it! n'a pas pu démarrer. Le détail est dans le fichier journal-technique.txt du dossier "
                 f"{base.DOSSIER}.")
         return
 
@@ -155,7 +155,7 @@ def main() -> None:
         fenetre.wait()
         application.fermer_enregistrement("fenêtre fermée")
     application.signaler_presence()
-    # Le serveur reste le temps de finir les transcriptions, et tant qu'une page de Got-it est ouverte.
+    # Le serveur reste le temps de finir les transcriptions, et tant qu'une page de Got it! est ouverte.
     while application.en_activite() or time.time() - application.derniere_presence() < ATTENTE_SANS_FENETRE:
         time.sleep(2)
         if time.time() - application.derniere_presence() >= ATTENTE_SANS_FENETRE:
@@ -173,4 +173,4 @@ if __name__ == "__main__":
             print(detail)
         except Exception:
             pass
-        message("Got-it s'est arrêté sur une erreur :\n\n" + detail[-700:])
+        message("Got it! s'est arrêté sur une erreur :\n\n" + detail[-700:])

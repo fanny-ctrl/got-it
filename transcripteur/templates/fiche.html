@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titre %}{{ t.titre }} · Got-it{% endblock %}
+{% block titre %}{{ t.titre }} · Got it!{% endblock %}
 {% block contenu %}
 {# Une transcription : suivi en direct pendant l'enregistrement et le traitement (relu toutes les une à deux
    secondes sur /api/t/{id}), puis synthèse, texte intégral et téléchargement en Word. #}
@@ -40,7 +40,7 @@
 
     {% elif t.statut == 'enregistrement' %}
     <section class="direct">
-      <p class="message">Cet enregistrement n'est plus actif (Got-it a peut-être été relancé).</p>
+      <p class="message">Cet enregistrement n'est plus actif (Got it! a peut-être été relancé).</p>
       <div class="actions">
         <form method="post" action="/t/{{ t.id }}/abandonner" onsubmit="return confirm('Effacer cet enregistrement sans le transcrire ?')"><button class="bouton danger" type="submit">Abandonner</button></form>
       </div>
@@ -108,7 +108,7 @@
     <div class="texte-integral" id="texte">{{ t.texte }}</div>
     <form class="actions" method="post" action="/t/{{ t.id }}/effacer-texte" onsubmit="return confirm('Effacer définitivement le texte intégral ? La synthèse reste.')">
       <button class="bouton danger petit" type="submit">Effacer le texte intégral</button>
-      <span class="discret">Une fois la synthèse relue, le texte intégral n'est plus utile&nbsp;: l'effacer limite ce que Got-it garde.</span>
+      <span class="discret">Une fois la synthèse relue, le texte intégral n'est plus utile&nbsp;: l'effacer limite ce que Got it! garde.</span>
     </form>
     {% elif t.texte_efface_le %}
     <p class="vide">Texte intégral effacé le {{ t.texte_efface_le|date_fr(true) }}&nbsp;; la synthèse reste.</p>
@@ -178,7 +178,7 @@
           document.getElementById("etape").textContent = etat.etape || "En attente…";
         }
       } catch (erreur) {
-        // Got-it momentanément injoignable : on réessaie au tour suivant.
+        // Got it! momentanément injoignable : on réessaie au tour suivant.
       }
     }
     setInterval(rafraichir, enregistrement ? 1000 : 2000);

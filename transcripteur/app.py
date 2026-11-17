@@ -1,4 +1,4 @@
-"""L'application : pages et routes de Got-it.
+"""L'application : pages et routes de Got it!
 
 Routes :
   GET  /                          toutes les transcriptions, de la plus récente à la plus ancienne
@@ -15,10 +15,10 @@ Routes :
   GET  /t/{id}/word               la synthèse en Word (?texte=1 : avec le texte intégral)
   GET  /api/t/{id}                état en JSON pour le suivi (chrono, niveaux, progression)
   GET  /reglages, POST /reglages  nom de l'avocat, formule d'information, trame de la synthèse, modèle Ollama
-  GET  /api/version               pour que lancer.py reconnaisse un Got-it déjà ouvert
+  GET  /api/version               pour que lancer.py reconnaisse un Got it! déjà ouvert
 
 Sécurité locale : le serveur n'écoute que sur 127.0.0.1 ; `verifier_provenance` refuse tout autre nom d'hôte
-(protection contre le « DNS rebinding ») et toute écriture qui ne vient pas d'une page de Got-it.
+(protection contre le « DNS rebinding ») et toute écriture qui ne vient pas d'une page de Got it!
 """
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ async def cycle(application: FastAPI):
     yield
 
 
-app = FastAPI(title="Got-it", docs_url=None, redoc_url=None, openapi_url=None, lifespan=cycle)
+app = FastAPI(title="Got it!", docs_url=None, redoc_url=None, openapi_url=None, lifespan=cycle)
 app.mount("/static", StaticFiles(directory=RACINE / "static"), name="static")
 templates = Jinja2Templates(directory=RACINE / "templates")
 
@@ -73,11 +73,11 @@ templates = Jinja2Templates(directory=RACINE / "templates")
 async def verifier_provenance(request: Request, suite):
     hote = request.headers.get("host", "")
     if hote.split(":")[0] not in ("127.0.0.1", "localhost"):
-        return PlainTextResponse("Got-it ne répond que sur ce PC.", status_code=403)
+        return PlainTextResponse("Got it! ne répond que sur ce PC.", status_code=403)
     if request.method not in ("GET", "HEAD", "OPTIONS"):
         provenance = request.headers.get("origin") or request.headers.get("referer") or ""
         if not (provenance == f"http://{hote}" or provenance.startswith(f"http://{hote}/")):
-            return PlainTextResponse("Cette demande ne vient pas d'une page de Got-it.", status_code=403)
+            return PlainTextResponse("Cette demande ne vient pas d'une page de Got it!", status_code=403)
     reponse = await suite(request)
     reponse.headers["Cache-Control"] = "no-store"
     reponse.headers["X-Content-Type-Options"] = "nosniff"
@@ -188,7 +188,7 @@ def signaler_presence() -> None:
 
 
 def derniere_presence() -> float:
-    """L'instant du dernier signe d'une page de Got-it ouverte (chaque page en donne un toutes les cinq secondes)."""
+    """L'instant du dernier signe d'une page de Got it! ouverte (chaque page en donne un toutes les cinq secondes)."""
     return _presence
 
 

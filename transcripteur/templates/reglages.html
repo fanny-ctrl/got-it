@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titre %}Réglages · Got-it{% endblock %}
+{% block titre %}Réglages · Got it!{% endblock %}
 {% block contenu %}
 <div class="deux-zones">
   <form class="formulaire" method="post" action="/reglages">
@@ -38,7 +38,7 @@
     {% include "_environnement.html" %}
     <h3>Où sont les données</h3>
     <p>La base et, le temps d'une transcription, les enregistrements sont dans <code>{{ dossier }}</code>, hors des dossiers synchronisés avec un service en ligne. Ne déplacez pas ce dossier dans OneDrive, Dropbox ou Google Drive.</p>
-    <p class="discret">Got-it {{ version }}</p>
+    <p class="discret">Got it! {{ version }}</p>
   </aside>
 </div>
 {% endblock %}

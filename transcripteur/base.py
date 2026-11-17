@@ -1,4 +1,4 @@
-"""La base SQLite de Got-it : transcriptions, journal et réglages.
+"""La base SQLite de Got it! : transcriptions, journal et réglages.
 
 Tout est rangé dans C:\\Users\\<vous>\\Got-it, volontairement hors des dossiers synchronisés (OneDrive,
 Dropbox…) : la base `transcripteur.db` et, le temps d'une transcription, le dossier `enregistrements`.

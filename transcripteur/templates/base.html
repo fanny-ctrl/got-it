@@ -3,25 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titre %}Got-it{% endblock %}</title>
+  <title>{% block titre %}Got it!{% endblock %}</title>
   <link rel="icon" href="/static/icone.ico">
   <link rel="stylesheet" href="/static/style.css?v={{ version }}">
 </head>
 <body>
+  {# Bandeau ardoise : le nom, les trois pages (celle où l'on est porte un filet laiton), le rappel du local. #}
+  {% set chemin = request.url.path %}
   <header class="bandeau">
-    <a class="marque" href="/">Got-it</a>
+    <a class="marque" href="/">Got it!</a>
     <nav>
-      <a href="/">Transcriptions</a>
-      <a href="/nouvelle">Nouvel enregistrement</a>
-      <a href="/reglages">Réglages</a>
+      <a href="/nouvelle" {% if chemin == '/nouvelle' %}class="ici"{% endif %}>Enregistrer</a>
+      <a href="/" {% if chemin == '/' or chemin.startswith('/t/') %}class="ici"{% endif %}>Transcriptions</a>
+      <a href="/reglages" {% if chemin == '/reglages' %}class="ici"{% endif %}>Réglages</a>
     </nav>
-    <span class="local" title="Aucune donnée ne quitte cet ordinateur">● Tout reste sur ce PC</span>
+    <span class="local" title="Aucune donnée ne quitte cet ordinateur">Tout reste sur ce PC</span>
   </header>
   <main>
     {% block contenu %}{% endblock %}
   </main>
   <script>
-    // Signe de présence : tant qu'une page est ouverte, Got-it reste en marche (voir lancer.py).
+    // Signe de présence : tant qu'une page est ouverte, Got it! reste en marche (voir lancer.py).
     setInterval(function () { fetch("/api/presence", { cache: "no-store" }).catch(function () {}); }, 5000);
   </script>
   {% block scripts %}{% endblock %}

@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-echo === Installation de Got-it ===
+echo === Installation de Got it! ===
 where py >nul 2>nul
 if %errorlevel% neq 0 (
   echo Python n'est pas installe. Telechargez-le sur https://www.python.org/downloads/windows/
@@ -29,5 +29,5 @@ python outils\preparer.py
 echo.
 powershell -NoProfile -ExecutionPolicy Bypass -File "outils\raccourci.ps1"
 echo.
-echo Installation terminee. Ouvrez Got-it avec son raccourci sur le Bureau, ou avec lancer.bat
+echo Installation terminee. Ouvrez Got it! avec son raccourci sur le Bureau, ou avec lancer.bat
 pause
