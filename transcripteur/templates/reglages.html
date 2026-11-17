@@ -11,23 +11,6 @@
       <span class="discret">Il aide la transcription à orthographier votre nom et la synthèse à distinguer l'avocat du client.</span>
     </label>
 
-    <label>Formule d'information lue au client
-      <textarea name="information" rows="5">{{ valeurs.information }}</textarea>
-    </label>
-
-    <label>Trame de la synthèse
-      <textarea name="trame" rows="20">{{ valeurs.trame }}</textarea>
-      <span class="discret">Ce sont les consignes données au modèle de langue. Adaptez la structure à votre pratique&nbsp;; les règles « ne rien inventer » et « rester factuel » méritent d'être gardées.</span>
-    </label>
-
-    <label>Modèle de langue d'Ollama
-      <select name="modele_ollama">
-        <option value="">Choix automatique (Mistral s'il est installé)</option>
-        {% for m in environnement.ollama or [] %}<option value="{{ m }}" {% if m == valeurs.modele_ollama %}selected{% endif %}>{{ m }}</option>{% endfor %}
-        {% if valeurs.modele_ollama and valeurs.modele_ollama not in (environnement.ollama or []) %}<option value="{{ valeurs.modele_ollama }}" selected>{{ valeurs.modele_ollama }} (introuvable pour l'instant)</option>{% endif %}
-      </select>
-    </label>
-
     <h2 id="rangement">Dossier de rangement</h2>
     <p>Le compte rendu Word de chaque rendez-vous peut être déposé dans un dossier de votre choix, par exemple celui du client ou un dossier de votre drive.</p>
     {% if rangement.dossier %}
@@ -54,6 +37,24 @@
     <input type="hidden" name="rangement_auto" value="1">
     {% endif %}
 
+    <h2>Information du client et synthèse</h2>
+    <label>Formule d'information lue au client
+      <textarea name="information" rows="5">{{ valeurs.information }}</textarea>
+    </label>
+
+    <label>Trame de la synthèse
+      <textarea name="trame" rows="12">{{ valeurs.trame }}</textarea>
+      <span class="discret">Ce sont les consignes données au modèle de langue. Adaptez la structure à votre pratique&nbsp;; les règles « ne rien inventer » et « rester factuel » méritent d'être gardées.</span>
+    </label>
+
+    <label>Modèle de langue d'Ollama
+      <select name="modele_ollama">
+        <option value="">Choix automatique (Mistral s'il est installé)</option>
+        {% for m in environnement.ollama or [] %}<option value="{{ m }}" {% if m == valeurs.modele_ollama %}selected{% endif %}>{{ m }}</option>{% endfor %}
+        {% if valeurs.modele_ollama and valeurs.modele_ollama not in (environnement.ollama or []) %}<option value="{{ valeurs.modele_ollama }}" selected>{{ valeurs.modele_ollama }} (introuvable pour l'instant)</option>{% endif %}
+      </select>
+    </label>
+
     <div class="actions">
       <button class="bouton principal" type="submit">Enregistrer</button>
       <button class="bouton" type="submit" name="retablir" value="1" onclick="return confirm('Rétablir la formule d\'information et la trame d\'origine ?')">Rétablir la formule et la trame d'origine</button>
@@ -62,6 +63,8 @@
 
   <aside>
     {% include "_environnement.html" %}
+    <h3>Dossier de rangement</h3>
+    <p>{% if rangement.dossier %}Les comptes rendus Word sont rangés dans <code>{{ rangement.dossier }}</code>.{% else %}Aucun dossier choisi pour ranger les comptes rendus Word.{% endif %} <a href="#rangement">{% if rangement.dossier %}Modifier{% else %}Choisir un dossier{% endif %}</a></p>
     <h3>Où sont les données</h3>
     <p>La base et, le temps d'une transcription, les enregistrements sont dans <code>{{ dossier }}</code>, hors des dossiers synchronisés avec un service en ligne. Ne déplacez pas ce dossier dans OneDrive, Dropbox ou Google Drive.</p>
     <p class="discret">Got it! {{ version }}</p>

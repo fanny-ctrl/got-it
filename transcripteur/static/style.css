@@ -138,6 +138,7 @@ h3 {
   font-size: 13.5px;
   line-height: 1.55;
 }
+.deux-zones aside code { word-break: break-all; }
 .deux-zones aside h3:first-child { margin-top: 0; }
 @media (max-width: 900px) {
   .deux-zones { grid-template-columns: 1fr; gap: 28px; }
