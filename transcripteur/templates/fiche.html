@@ -31,7 +31,7 @@
         {% endif %}
       </div>
       <p class="message" id="alerte" hidden></p>
-      <p class="discret">Les barres bougent quand il y a du son. Si celle du micro reste vide alors que vous parlez, vérifiez le micro choisi et, dans les paramètres de Windows (Confidentialité, Microphone), que les applications de bureau peuvent l'utiliser.{% if t.source == 'micro et ordinateur' %} Si celle de l'ordinateur reste vide quand votre interlocuteur parle, la sortie choisie n'est pas celle où vous l'entendez&nbsp;: abandonnez et recommencez avec l'autre sortie.{% endif %}</p>
+      <p class="discret">Les barres bougent quand il y a du son. Si celle du micro reste vide alors que vous parlez, vérifiez le micro choisi et, {% if mac %}dans Réglages Système (Confidentialité et sécurité, Microphone), que Terminal y est autorisé.{% else %}dans les paramètres de Windows (Confidentialité, Microphone), que les applications de bureau peuvent l'utiliser.{% endif %}{% if t.source == 'micro et ordinateur' %} Si celle de l'ordinateur reste vide quand votre interlocuteur parle, la sortie choisie n'est pas celle où vous l'entendez&nbsp;: abandonnez et recommencez avec l'autre sortie.{% endif %}</p>
       <div class="actions">
         <form method="post" action="/t/{{ t.id }}/arreter"><button class="bouton principal" type="submit">■ Arrêter et transcrire</button></form>
         <form method="post" action="/t/{{ t.id }}/abandonner" onsubmit="return confirm('Arrêter sans transcrire et effacer l\'enregistrement ?')"><button class="bouton danger" type="submit">Abandonner</button></form>

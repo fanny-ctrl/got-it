@@ -40,7 +40,14 @@ def dossier_test() -> Path | None:
     return Path(chemin) if chemin else None
 
 
+MAC = sys.platform == "darwin"
+VIRTUELS = ("blackhole", "loopback", "soundflower", "vb-cable", "background music")
 _verrou_import = threading.Lock()
+
+
+def _est_virtuel(nom: str) -> bool:
+    """Vrai pour un périphérique audio virtuel de macOS, qui transporte le son de l'ordinateur."""
+    return any(v in nom.lower() for v in VIRTUELS)
 
 
 def _preparer_fil() -> None:
@@ -71,19 +78,31 @@ def peripheriques() -> dict:
     try:
         _preparer_fil()
         import soundcard as sc
-        resultat["micros"] = [(m.id, m.name) for m in sc.all_microphones(include_loopback=False)]
-        resultat["sorties"] = [(s.id, s.name) for s in sc.all_speakers()]
+        entrees = [(str(m.id), m.name) for m in sc.all_microphones(include_loopback=False)]
+        if MAC:
+            # macOS ne laisse pas capter une sortie : le son de l'ordinateur arrive par un périphérique virtuel
+            # (BlackHole…), qui se présente comme une entrée. On le range du côté « son de l'ordinateur ».
+            resultat["micros"] = [e for e in entrees if not _est_virtuel(e[1])]
+            resultat["sorties"] = [e for e in entrees if _est_virtuel(e[1])]
+        else:
+            resultat["micros"] = entrees
+            resultat["sorties"] = [(str(s.id), s.name) for s in sc.all_speakers()]
     except Exception as erreur:
         resultat["erreur"] = str(erreur) or erreur.__class__.__name__
         return resultat
     try:
-        resultat["micro_defaut"] = sc.default_microphone().id
+        resultat["micro_defaut"] = str(sc.default_microphone().id)
     except Exception:
         pass
-    try:
-        resultat["sortie_defaut"] = sc.default_speaker().id
-    except Exception:
-        pass
+    if MAC:
+        resultat["sortie_defaut"] = resultat["sorties"][0][0] if resultat["sorties"] else ""
+    else:
+        try:
+            resultat["sortie_defaut"] = str(sc.default_speaker().id)
+        except Exception:
+            pass
+    if resultat["micro_defaut"] not in [i for i, _ in resultat["micros"]] and resultat["micros"]:
+        resultat["micro_defaut"] = resultat["micros"][0][0]
     return resultat
 
 
@@ -123,7 +142,11 @@ class SourceCarte(Source):
         try:
             _preparer_fil()
             import soundcard as sc
-            peripherique = sc.get_microphone(self.identifiant, include_loopback=self.boucle)
+            if MAC:     # identifiants numériques ; le périphérique virtuel s'ouvre comme un micro
+                identifiant = int(self.identifiant) if self.identifiant.lstrip("-").isdigit() else self.identifiant
+                peripherique = sc.get_microphone(identifiant)
+            else:
+                peripherique = sc.get_microphone(self.identifiant, include_loopback=self.boucle)
             # Deux canaux pour une sortie (stéréo), ramenés à un seul par la moyenne.
             with peripherique.recorder(samplerate=FREQUENCE, channels=2 if self.boucle else 1,
                                        blocksize=BLOC) as capture:

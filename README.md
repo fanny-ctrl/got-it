@@ -8,6 +8,8 @@ Un petit logiciel pour avocats qui enregistre un rendez-vous, le transcrit et en
 
 L'audio est écrasé puis supprimé dès qu'il est transcrit. Il reste le texte horodaté et une synthèse structurée (contexte, faits, questions juridiques, conseils donnés, pièces à obtenir, actions, échéances), à relire, corriger, copier ou télécharger en Word.
 
+> **Sur Mac** : une version est en cours de mise au point, pas encore éprouvée. La marche à suivre et ce qu'il faut installer avant de commencer sont dans [INSTALLATION-MAC.md](INSTALLATION-MAC.md). La suite de cette page décrit la version Windows.
+
 ## Ce qu'il faut
 
 - Windows 10 ou 11 (64 bits).

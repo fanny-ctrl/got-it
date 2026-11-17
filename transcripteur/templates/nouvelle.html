@@ -48,6 +48,9 @@
       <label class="choix mode"><input type="radio" name="mode" value="visio" {% if not p.sorties %}disabled{% endif %}>
         <span><strong>Le micro et le son de l'ordinateur</strong><br><span class="discret">Visioconférence ou appel passé depuis le PC (Teams, Zoom, Meet…)&nbsp;: votre voix par le micro, celle de vos interlocuteurs par le son de l'ordinateur.</span></span></label>
     </div>
+    {% if mac and not p.sorties %}
+    <p class="discret">Sur Mac, capter le son de l'ordinateur demande le pilote gratuit BlackHole et un réglage de deux minutes&nbsp;: voir le fichier <code>INSTALLATION-MAC.md</code>. Sans lui, seul « Le micro seul » est proposé.</p>
+    {% endif %}
     <label>Micro
       <select name="micro">
         {% for identifiant, nom in p.micros %}<option value="{{ identifiant }}" {% if identifiant == p.micro_defaut %}selected{% endif %}>{{ nom }}</option>{% endfor %}

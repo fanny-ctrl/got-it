@@ -15,6 +15,7 @@ from __future__ import annotations
 import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 from . import base, rendu
@@ -49,6 +50,11 @@ def choisir_dossier(depart: str = "") -> str:
     essai = os.environ.get("TRANSCRIPTEUR_DOSSIER_TEST")
     if essai is not None:
         return essai
+    if sys.platform == "darwin":
+        script = ('tell application "System Events" to activate\n'
+                  'POSIX path of (choose folder with prompt "Dossier où ranger les comptes rendus")')
+        sortie = subprocess.run(["osascript", "-e", script], capture_output=True, timeout=600)
+        return sortie.stdout.decode("utf-8", "replace").strip() if sortie.returncode == 0 else ""
     sortie = subprocess.run(
         ["powershell", "-NoProfile", "-STA", "-Command", SCRIPT_CHOIX], capture_output=True, timeout=600,
         env={**os.environ, "GOT_IT_DEPART": depart}, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))

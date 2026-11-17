@@ -13,10 +13,10 @@
       <span class="discret">À faire une seule fois, avec Internet. C'est le seul moment où Got it! se connecte&nbsp;: il télécharge le modèle depuis Hugging Face et n'envoie rien. Ensuite, tout fonctionne hors ligne.</span>
     {% endif %}</li>
   <li>{% if environnement.ollama %}<span class="statut teinte-vert">prêt</span> Synthèse&nbsp;: Ollama, modèle {{ environnement.modele_ollama }}
-    {% elif environnement.ollama is none %}<span class="statut teinte-jaune">absent</span> Synthèse&nbsp;: Ollama ne répond pas. S'il est installé, ouvrez-le depuis le menu Démarrer&nbsp;; sinon, seule la transcription sera faite (voir le mode d'emploi pour l'installer).
+    {% elif environnement.ollama is none %}<span class="statut teinte-jaune">absent</span> Synthèse&nbsp;: Ollama ne répond pas. S'il est installé, ouvrez-le depuis {% if mac %}le dossier Applications{% else %}le menu Démarrer{% endif %}&nbsp;; sinon, seule la transcription sera faite (voir le mode d'emploi pour l'installer).
     {% else %}<span class="statut teinte-jaune">sans modèle</span> Synthèse&nbsp;: Ollama n'a aucun modèle installé (<code>ollama pull mistral</code>).{% endif %}</li>
   <li>{% if environnement.chiffrement == 'protégé' %}<span class="statut teinte-vert">chiffré</span>{% else %}<span class="statut teinte-rouge">{{ environnement.chiffrement }}</span>{% endif %}
-    Disque (BitLocker){% if environnement.chiffrement != 'protégé' %}&nbsp;: activez le chiffrement de l'appareil avant de conserver des transcriptions.{% endif %}</li>
+    Disque ({{ nom_chiffrement }}){% if environnement.chiffrement != 'protégé' %}&nbsp;: activez {% if mac %}FileVault (Réglages Système, Confidentialité et sécurité){% else %}le chiffrement de l'appareil{% endif %} avant de conserver des transcriptions.{% endif %}</li>
   <li>Rien n'est envoyé hors du PC&nbsp;: la transcription et la synthèse tournent sur cet ordinateur.</li>
 </ul>
 <script>

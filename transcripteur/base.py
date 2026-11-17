@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 import sqlite3
 import subprocess
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -95,6 +96,7 @@ def regler(conn, cle: str, valeur: str) -> None:
 
 
 _chiffrement: tuple[float, str] | None = None
+NOM_CHIFFREMENT = "FileVault" if sys.platform == "darwin" else "BitLocker"
 
 
 def etat_chiffrement() -> str:
@@ -103,6 +105,14 @@ def etat_chiffrement() -> str:
     global _chiffrement
     if _chiffrement and time.time() - _chiffrement[0] < 300:
         return _chiffrement[1]
+    if sys.platform == "darwin":
+        try:
+            sortie = subprocess.run(["fdesetup", "status"], capture_output=True, text=True, timeout=15).stdout
+            etat = "protégé" if "FileVault is On" in sortie else ("non protégé" if "Off" in sortie else "non vérifié")
+        except Exception:
+            etat = "non vérifié"
+        _chiffrement = (time.time(), etat)
+        return etat
     lecteur = DOSSIER.resolve().drive or "C:"
     try:
         sortie = subprocess.run(

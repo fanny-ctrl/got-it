@@ -363,7 +363,8 @@ def traiter(tid: int) -> None:
             modeles = ollama_modeles()
             if not modeles:
                 terminer(conn, tid, "Ollama ne répond pas : la synthèse n'a pas été rédigée. Ouvrez Ollama depuis le "
-                                    "menu Démarrer, puis « Rédiger la synthèse ».")
+                                    + ("dossier Applications" if sys.platform == "darwin" else "menu Démarrer")
+                                    + ", puis « Rédiger la synthèse ».")
                 return
             modele = choisir_modele(modeles, base.reglage(conn, "modele_ollama"))
             maj(conn, tid, statut="synthèse", progression=0.0, etape=f"Rédaction de la synthèse par {modele}…")

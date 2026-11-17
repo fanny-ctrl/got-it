@@ -108,6 +108,8 @@ templates.env.filters["rendu"] = rendu.en_html
 templates.env.globals["statuts"] = STATUTS
 templates.env.globals["sources"] = SOURCES
 templates.env.globals["version"] = VERSION
+templates.env.globals["mac"] = audio.MAC
+templates.env.globals["nom_chiffrement"] = base.NOM_CHIFFREMENT
 
 
 def rendre(request: Request, gabarit: str, **contexte) -> HTMLResponse:

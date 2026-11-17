@@ -59,6 +59,13 @@ def port_occupe() -> bool:
 
 def navigateur_application() -> Path | None:
     """Edge, sinon Chrome : les navigateurs qui savent ouvrir une page comme une application."""
+    if sys.platform == "darwin":
+        for chemin in ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                       "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+                       "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"):
+            if Path(chemin).exists():
+                return Path(chemin)
+        return None     # Safari ne sait pas le faire : Got it! s'ouvrira dans un onglet
     racines = [os.environ.get(v) for v in ("ProgramFiles(x86)", "ProgramFiles", "LocalAppData")]
     for relatif in (r"Microsoft\Edge\Application\msedge.exe", r"Google\Chrome\Application\chrome.exe"):
         for racine in racines:

@@ -16,8 +16,8 @@
   --laiton-fond: #f3ead8;
   --danger: #8f3327;
   --vert: #2f6b4a;
-  --titres: "Sitka Display", "Sitka Heading", "Sitka Text", Constantia, Cambria, Georgia, serif;
-  --texte: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --titres: "Sitka Display", "Sitka Heading", "Sitka Text", Constantia, Cambria, "Iowan Old Style", Charter, Georgia, serif;
+  --texte: "Segoe UI Variable Text", "Segoe UI", -apple-system, system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }

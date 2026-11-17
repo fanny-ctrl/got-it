@@ -27,7 +27,7 @@
     <div class="actions">
       <button class="bouton" type="submit" formaction="/reglages/dossier">{% if rangement.dossier %}Changer de dossier…{% else %}Choisir un dossier…{% endif %}</button>
       {% if rangement.dossier %}<button class="bouton danger" type="submit" formaction="/reglages/dossier" name="oublier" value="1">Ne plus ranger</button>{% endif %}
-      <span class="discret">La fenêtre de choix de Windows s'ouvre par-dessus Got it!.</span>
+      <span class="discret">La fenêtre de choix {% if mac %}du Finder{% else %}de Windows{% endif %} s'ouvre par-dessus Got it!</span>
     </div>
     {% if rangement.dossier %}
     <label class="choix"><input type="checkbox" name="rangement_auto" value="1" {% if rangement.auto %}checked{% endif %}> Ranger automatiquement le compte rendu dès qu'une transcription est terminée, et le mettre à jour quand la synthèse est corrigée</label>
